@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="FactionData" load_steps=2 format=3 uid="uid://cqyip1omn48um"]
+
+[ext_resource type="Script" uid="uid://b7flp00kmeje0" path="res://Data/Factions/FactionData.gd" id="1_orxby"]
+
+[resource]
+script = ExtResource("1_orxby")
+nombre = "Patriota"
+color = Color(0, 0.136996, 0.744032, 1)
+bandera_path = "res://Assets/Facciones/bandera patriota.png"
+ideologia = "Republicanismo"
+recursos = {
+"aguardiente": 275,
+"biblias": 250,
+"caballos": 2500,
+"carne": 2500,
+"cañones": 25,
+"dinero": 500,
+"fruta": 500,
+"lanzas": 750,
+"moral": 100,
+"mosquetes": 250,
+"municion": 750,
+"oro": 250,
+"pan": 2500,
+"plata": 250,
+"polvora": 2500,
+"prestigio": 100,
+"sables": 750,
+"tabaco": 750,
+"verdura": 500,
+"vino": 375
+}
+metadata/_custom_type_script = "uid://b7flp00kmeje0"

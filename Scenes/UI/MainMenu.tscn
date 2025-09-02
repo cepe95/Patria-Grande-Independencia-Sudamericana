@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3 uid="uid://bjiehqbo5ccmv"]
+
+[ext_resource type="Script" uid="uid://gv6pw1lwvsfk" path="res://Scripts/UI/MainMenu.gd" id="1_g18y6"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_g18y6")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="ButtonContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="StartButton" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+text = "Iniciar Campaña"
+
+[node name="LoadButton" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+text = "Cargar Campaña"
+
+[node name="SettingsButton" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+text = "Opciones"
+
+[node name="ExitButton" type="Button" parent="ButtonContainer"]
+layout_mode = 2
+text = "Salir"
+
+[connection signal="pressed" from="ButtonContainer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="ButtonContainer/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="ButtonContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="ButtonContainer/ExitButton" to="." method="_on_exit_button_pressed"]

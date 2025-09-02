@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://de53dq1ddujpm"]
+
+[ext_resource type="Script" uid="uid://v74oc0imkty" path="res://Scripts/Strategic/StrategicMap.gd" id="1_4ob0n"]
+[ext_resource type="Texture2D" uid="uid://ccs3fpix5f3m1" path="res://Assets/Maps/cordoba.png" id="2_tqhli"]
+
+[node name="StrategicMap" type="Node2D"]
+script = ExtResource("1_4ob0n")
+
+[node name="MapBackground" type="Sprite2D" parent="."]
+texture = ExtResource("2_tqhli")
+
+[node name="UnitsContainer" type="Node2D" parent="."]
+script = ExtResource("1_4ob0n")
+
+[node name="UIOverlay" type="CanvasLayer" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.5, 1.5)

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bn2qhhefkawvn"]
+
+[ext_resource type="Script" uid="uid://dn6q4wdhkapjt" path="res://Scripts/Strategic/TownInstance.gd" id="1_cd1uw"]
+
+[node name="TownInstance" type="Node2D"]
+script = ExtResource("1_cd1uw")

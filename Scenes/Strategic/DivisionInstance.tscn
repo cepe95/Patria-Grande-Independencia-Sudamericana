@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgo4g0tkqvy6n"]
+
+[ext_resource type="Script" uid="uid://dtnb2xhayrdyi" path="res://Scripts/Strategic/DivisionInstance.gd" id="1_3vg0n"]
+
+[node name="DivisionInstance" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_3vg0n")
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 0
+script = ExtResource("1_3vg0n")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

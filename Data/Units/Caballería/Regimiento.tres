@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://dd4ad6lrjb02k"]
+
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_86dun"]
+[ext_resource type="Texture2D" uid="uid://d0npqixyfyk0e" path="res://Assets/Icons/Regimiento Caballería.png" id="1_lwcl7"]
+
+[resource]
+script = ExtResource("1_86dun")
+nombre = "Regimiento de Caballería"
+rama = "Caballería"
+nivel = 3
+"tamaño" = 270
+fusionable = false
+icono = ExtResource("1_lwcl7")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

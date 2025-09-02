@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://c2mvfqp7nun7c"]
+
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_lbuxt"]
+[ext_resource type="Texture2D" uid="uid://dhq00w5n8hc3y" path="res://Assets/Icons/Compañia Caballería.png" id="1_m8w20"]
+
+[resource]
+script = ExtResource("1_lbuxt")
+nombre = "Compañia de Caballería"
+rama = "Caballería"
+nivel = 2
+"tamaño" = 90
+fusionable = true
+icono = ExtResource("1_m8w20")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

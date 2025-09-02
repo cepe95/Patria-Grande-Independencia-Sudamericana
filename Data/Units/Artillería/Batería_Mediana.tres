@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://bchdre1xbtxpe"]
+
+[ext_resource type="Texture2D" uid="uid://cuefajb531r0v" path="res://Assets/Icons/Batería Mediana.png" id="1_db4qq"]
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_n01wn"]
+
+[resource]
+script = ExtResource("1_n01wn")
+nombre = "Batería Mediana"
+rama = "Artillería"
+nivel = 2
+"tamaño" = 60
+fusionable = true
+icono = ExtResource("1_db4qq")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

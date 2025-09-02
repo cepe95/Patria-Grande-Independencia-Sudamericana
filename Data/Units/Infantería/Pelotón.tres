@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://b2kl7eraukx5t"]
+
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_mm4yb"]
+[ext_resource type="Texture2D" uid="uid://b0gt2g577k5w5" path="res://Assets/Icons/Pelotón Infantería.png" id="1_n83jp"]
+
+[resource]
+script = ExtResource("1_mm4yb")
+nombre = "Pelotón de Infantería"
+rama = "Infantería"
+nivel = 1
+"tamaño" = 50
+fusionable = true
+icono = ExtResource("1_n83jp")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

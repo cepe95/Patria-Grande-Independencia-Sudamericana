@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://b8fbookdkhamy"]
+
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_1jkn4"]
+[ext_resource type="Texture2D" uid="uid://h75bkrrrfwmw" path="res://Assets/Icons/Escuadrón Caballería.png" id="1_1o35n"]
+
+[resource]
+script = ExtResource("1_1jkn4")
+nombre = "Escuadrón de Caballería"
+rama = "Caballería"
+nivel = 1
+"tamaño" = 30
+fusionable = true
+icono = ExtResource("1_1o35n")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

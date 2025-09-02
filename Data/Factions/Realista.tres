@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="FactionData" load_steps=2 format=3 uid="uid://dugxeo5w5fh5"]
+
+[ext_resource type="Script" uid="uid://b7flp00kmeje0" path="res://Data/Factions/FactionData.gd" id="1_5q3bo"]
+
+[resource]
+script = ExtResource("1_5q3bo")
+nombre = "Realista"
+color = Color(0.905882, 0, 0, 1)
+bandera_path = "res://Assets/Facciones/bandera realista.png"
+ideologia = "Monarquismo"
+recursos = {
+"aguardiente": 550,
+"biblias": 500,
+"caballos": 5000,
+"carne": 5000,
+"cañones": 50,
+"dinero": 1000,
+"fruta": 1000,
+"lanzas": 1500,
+"moral": 100,
+"mosquetes": 500,
+"municion": 1500,
+"oro": 500,
+"pan": 5000,
+"plata": 500,
+"polvora": 5000,
+"prestigio": 100,
+"sables": 1500,
+"tabaco": 1500,
+"verdura": 1000,
+"vino": 750
+}
+metadata/_custom_type_script = "uid://b7flp00kmeje0"

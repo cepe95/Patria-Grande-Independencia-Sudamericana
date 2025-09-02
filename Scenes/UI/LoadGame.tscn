@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://c2qxg5etdvcjr"]
+
+[node name="LoadGame" type="Control"]
+layout_mode = 3
+anchors_preset = 0

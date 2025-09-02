@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://cpk3v2btni035"]
+
+[ext_resource type="Texture2D" uid="uid://djflrxck1vwsa" path="res://Assets/Icons/Batallón Infantería.png" id="1_63cn7"]
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_e4nbs"]
+
+[resource]
+script = ExtResource("1_e4nbs")
+nombre = "Batallón de Infantería"
+rama = "Infantería"
+nivel = 3
+"tamaño" = 450
+fusionable = true
+icono = ExtResource("1_63cn7")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

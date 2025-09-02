@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://5jp56tiod6ae"]
+
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_g3g26"]
+[ext_resource type="Texture2D" uid="uid://duur0skt5jb1x" path="res://Assets/Icons/Compañia Infantería.png" id="1_s0vgg"]
+
+[resource]
+script = ExtResource("1_g3g26")
+nombre = "Compañia de Infantería"
+rama = "Infantería"
+nivel = 2
+"tamaño" = 150
+fusionable = true
+icono = ExtResource("1_s0vgg")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"

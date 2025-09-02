@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://beqc53ltxk0qt"]
+
+[node name="ResourceUi" type="Control"]
+layout_mode = 3
+anchors_preset = 0

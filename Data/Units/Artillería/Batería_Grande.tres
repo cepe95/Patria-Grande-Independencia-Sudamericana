@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://b14t3owm27v2k"]
+
+[ext_resource type="Script" uid="uid://dpjs0nus1ju16" path="res://Scripts/Data/UnitData.gd" id="1_eh0iw"]
+[ext_resource type="Texture2D" uid="uid://3igqbmdy2th7" path="res://Assets/Icons/Batería Grande.png" id="1_jn1ln"]
+
+[resource]
+script = ExtResource("1_eh0iw")
+nombre = "Batería Grande"
+rama = "Artillería"
+nivel = 3
+"tamaño" = 120
+fusionable = false
+icono = ExtResource("1_jn1ln")
+metadata/_custom_type_script = "uid://dpjs0nus1ju16"
