@@ -5,11 +5,17 @@
 [node name="DivisionInstance" type="Control"]
 layout_mode = 3
 anchors_preset = 0
+focus_mode = 2
 script = ExtResource("1_3vg0n")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="UnitsContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
 
 [node name="Icon" type="TextureRect" parent="."]
 layout_mode = 0
-script = ExtResource("1_3vg0n")
+scale = Vector2(0.1, 0.1)
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 0

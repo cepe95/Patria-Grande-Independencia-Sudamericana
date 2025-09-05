@@ -1,11 +1,14 @@
 extends Control
 
+signal division_seleccionada(division)
+
 var data: DivisionData = null
 var detail: DivisionData = null
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 @onready var label: Label = get_node_or_null("Label")
-@onready var icon: TextureRect = get_node_or_null("DivisionInstance/Icon") # Debe ser un TextureRect
+@onready var icon: TextureRect = get_node_or_null("Icon")
+@onready var units_container: VBoxContainer = get_node_or_null("UnitsContainer") # Contenedor para unidades
 
 func set_button_data(_data_param: DivisionData) -> void:
 	data = _data_param
@@ -26,16 +29,28 @@ func set_button_data(_data_param: DivisionData) -> void:
 			push_warning("⚠️ Facción desconocida: %s" % str(data.faccion))
 			icon.texture = load("res://Assets/Icons/Division Patriota.png") as Texture2D
 
-func set_data(d: DivisionData):
-	if not d:
-		push_error("⚠ Se intentó asignar un 'data' nulo en set_data()")
-		return
-	
-	data = d
-	if sprite and d.icono:
-		sprite.texture = d.icono
 	if label:
-		label.text = "%s (%d)" % [d.nombre, d.cantidad_total]
+		label.text = "%s (%d)" % [data.nombre, data.cantidad_total]
+
+	# Mostrar la composición de unidades
+	mostrar_composicion_unidades()
+
+func mostrar_composicion_unidades() -> void:
+	if not data or not units_container:
+		return
+
+	# Limpiar contenedor
+	for child in units_container.get_children():
+		child.queue_free()
+
+	# Instanciar cada unidad como Label o pequeño icono
+	for unidad_data in data.unidades_componentes:
+		if not unidad_data:
+			continue
+		var unidad_label = Label.new()
+		unidad_label.text = unidad_data.nombre
+		unidad_label.add_theme_color_override("font_color", Color(1,1,1))
+		units_container.add_child(unidad_label)
 
 func mostrar_panel_composicion():
 	if not data:
@@ -50,10 +65,17 @@ func mover_a(destino: Vector2):
 	var tween := create_tween()
 	tween.tween_property(self, "position", destino, 1.0).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
 
-func _input_event(_viewport, event, _shape_idx):
+func _gui_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if get_tree().current_scene.has_method("division_seleccionada"):
-			get_tree().current_scene.division_seleccionada = self
+		print("✔ División clickeada:", data.nombre)
+		emit_signal("division_seleccionada", self)
+		resaltar_seleccion(true)
+
+func resaltar_seleccion(activo: bool):
+	if activo:
+		self.modulate = Color(0.5, 0.5, 1) # Azul
+	else:
+		self.modulate = Color(1, 1, 1)   # Normal
 
 func obtener_area_visual() -> Rect2:
 	if sprite and sprite.texture:
@@ -62,7 +84,6 @@ func obtener_area_visual() -> Rect2:
 
 func consumir_recursos(delta: float) -> void:
 	if not data:
-		# Evita crashear si no se inicializó la división
 		return
 	
 	var fac := FactionManager.obtener_faccion(data.faccion)

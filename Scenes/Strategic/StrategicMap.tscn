@@ -10,7 +10,6 @@ script = ExtResource("1_4ob0n")
 texture = ExtResource("2_tqhli")
 
 [node name="UnitsContainer" type="Node2D" parent="."]
-script = ExtResource("1_4ob0n")
 
 [node name="UIOverlay" type="CanvasLayer" parent="."]
 
