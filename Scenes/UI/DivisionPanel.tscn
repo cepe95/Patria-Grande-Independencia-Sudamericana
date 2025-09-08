@@ -10,6 +10,118 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
+[node name="FactionLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="MainBranchLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="CommanderContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CommanderIcon" type="TextureRect" parent="CommanderContainer"]
+layout_mode = 2
+
+[node name="CommanderLabel" type="Label" parent="CommanderContainer"]
+layout_mode = 2
+
+[node name="StatsGrid" type="GridContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Cantidad Total"
+
+[node name="Label2" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="Label3" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Movilidad"
+
+[node name="Label4" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="Label5" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Moral"
+
+[node name="Label6" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="Label7" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Experiencia"
+
+[node name="Label8" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="Label9" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Condición Física"
+
+[node name="Label10" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="Label11" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Bajas Recientes"
+
+[node name="Label12" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="Label13" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "Nivel de Refuerzos"
+
+[node name="Label14" type="Label" parent="StatsGrid"]
+layout_mode = 2
+text = "0"
+
+[node name="StateLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="LocationLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="SupplyLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="CreatedLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="HistoryLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="MissionLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
 [node name="UnitList" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
@@ -26,6 +138,11 @@ layout_mode = 2
 
 [node name="Button" type="Button" parent="UnitList/UnitEntry"]
 layout_mode = 2
+
+[node name="BtnFusionar" type="Button" parent="."]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
 
 [node name="BtnCerrar" type="Button" parent="."]
 layout_mode = 0
