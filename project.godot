@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 UnitUtils="*res://Scripts/Strategic/UnitUtils.gd"
 DivisionAssembler="*res://Scripts/Strategic/DivisionAssembler.gd"
 FactionManager="*res://Systems/FactionManager.gd"
+RecruitmentManager="*res://Scripts/Manager/RecruitmentManager.gd"
 
 [display]
 

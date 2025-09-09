@@ -390,6 +390,9 @@ func _on_list_entry_selected(entry_type: String, name: String, reference_node: N
 			}
 			show_details("Ciudad: " + name, city_details)
 			add_event("Ciudad seleccionada: " + name, "info")
+			
+			# Agregar botón de reclutamiento
+			add_recruitment_button(name)
 
 func _on_close_details_pressed():
 	"""Callback para cerrar el panel de detalles"""
@@ -401,8 +404,70 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Procesar mantenimiento de unidades
+	process_unit_maintenance()
+	
+	# TODO: Aquí se procesarían otros eventos del turno
 	print("✓ Avanzando al turno: ", current_turn)
+
+func process_unit_maintenance():
+	"""Procesa el mantenimiento de todas las unidades al inicio del turno"""
+	var recruitment_manager = get_recruitment_manager()
+	if not recruitment_manager:
+		add_event("⚠ Sistema de mantenimiento no disponible", "warning")
+		return
+	
+	# Obtener todas las unidades del mapa
+	var all_units = get_all_units()
+	var all_towns = get_all_towns()
+	
+	if all_units.is_empty():
+		add_event("No hay unidades que requieran mantenimiento", "info")
+		return
+	
+	# Aplicar costos de mantenimiento
+	var maintenance_result = recruitment_manager.apply_maintenance_costs(all_units, all_towns)
+	
+	# Informar resultados
+	if maintenance_result["units_processed"] > 0:
+		add_event("✓ Mantenimiento aplicado a %d unidades" % maintenance_result["units_processed"], "success")
+		
+		# Mostrar resumen de recursos consumidos
+		var total_cost = maintenance_result["total_cost"]
+		if not total_cost.is_empty():
+			var cost_summary = "Recursos consumidos: "
+			var cost_items = []
+			for resource in total_cost:
+				if total_cost[resource] > 0:
+					cost_items.append("%s: %s" % [resource, total_cost[resource]])
+			if not cost_items.is_empty():
+				cost_summary += cost_items.join(", ")
+				add_event(cost_summary, "info")
+	
+	if maintenance_result["units_without_maintenance"] > 0:
+		add_event("⚠ %d unidades sin mantenimiento adecuado" % maintenance_result["units_without_maintenance"], "warning")
+
+func get_all_units() -> Array:
+	"""Obtiene todas las unidades del mapa estratégico"""
+	var units = []
+	
+	if strategic_map:
+		var units_container = strategic_map.get_node_or_null("UnitsContainer")
+		if units_container:
+			units = units_container.get_children()
+	
+	return units
+
+func get_all_towns() -> Array:
+	"""Obtiene todas las ciudades del mapa estratégico"""
+	var towns = []
+	
+	if strategic_map:
+		var towns_container = strategic_map.get_node_or_null("TownsContainer")
+		if towns_container:
+			towns = towns_container.get_children()
+	
+	return towns
 
 func _on_pause_pressed():
 	"""Callback para pausar el juego"""
@@ -427,6 +492,150 @@ func _unhandled_input(event):
 				_on_next_turn_pressed()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
+
+func add_recruitment_button(city_name: String):
+	"""Agrega un botón de reclutamiento al panel de detalles de ciudad"""
+	var recruitment_button = Button.new()
+	recruitment_button.text = "Reclutar Unidades"
+	recruitment_button.custom_min_size = Vector2(150, 30)
+	recruitment_button.pressed.connect(_on_recruitment_button_pressed.bind(city_name))
+	
+	details_content.add_child(recruitment_button)
+
+func _on_recruitment_button_pressed(city_name: String):
+	"""Callback cuando se presiona el botón de reclutamiento"""
+	show_recruitment_panel(city_name)
+
+func show_recruitment_panel(city_name: String):
+	"""Muestra el panel de reclutamiento para una ciudad"""
+	var town_instance = find_town_by_name(city_name)
+	if not town_instance:
+		add_event("No se encontró la ciudad: " + city_name, "error")
+		return
+	
+	var recruitment_manager = get_recruitment_manager()
+	if not recruitment_manager:
+		add_event("Sistema de reclutamiento no disponible", "error")
+		return
+	
+	# Obtener unidades disponibles para reclutamiento
+	var available_units = recruitment_manager.get_available_units_for_recruitment(town_instance)
+	
+	if available_units.is_empty():
+		add_event("No hay unidades disponibles para reclutar en " + city_name, "warning")
+		return
+	
+	# Limpiar el panel de detalles y mostrar opciones de reclutamiento
+	for child in details_content.get_children():
+		child.queue_free()
+	
+	details_title.text = "Reclutamiento en " + city_name
+	
+	# Agregar información de la ciudad
+	var city_info = Label.new()
+	city_info.text = "Selecciona una unidad para reclutar:"
+	city_info.add_theme_font_size_override("font_size", 12)
+	details_content.add_child(city_info)
+	
+	# Agregar botones para cada unidad disponible
+	for unit_data in available_units:
+		if unit_data:
+			add_recruitment_option(unit_data, town_instance)
+	
+	# Botón para volver
+	var back_button = Button.new()
+	back_button.text = "Volver"
+	back_button.custom_min_size = Vector2(100, 30)
+	back_button.pressed.connect(_on_list_entry_selected.bind("city", city_name, null))
+	details_content.add_child(back_button)
+
+func add_recruitment_option(unit_data: UnitData, town_instance: Node):
+	"""Agrega una opción de reclutamiento al panel"""
+	var container = VBoxContainer.new()
+	container.add_theme_constant_override("separation", 5)
+	
+	# Información de la unidad
+	var unit_label = Label.new()
+	unit_label.text = "%s (%d hombres)" % [unit_data.nombre, unit_data.tamaño]
+	unit_label.add_theme_font_size_override("font_size", 12)
+	container.add_child(unit_label)
+	
+	# Mostrar costos de reclutamiento
+	var costs_label = Label.new()
+	var cost_text = "Costos: "
+	var cost_items = []
+	for resource in unit_data.costos_reclutamiento:
+		if unit_data.costos_reclutamiento[resource] > 0:
+			cost_items.append("%s: %s" % [resource, unit_data.costos_reclutamiento[resource]])
+	cost_text += cost_items.join(", ")
+	costs_label.text = cost_text
+	costs_label.add_theme_font_size_override("font_size", 10)
+	costs_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	container.add_child(costs_label)
+	
+	# Mostrar costos de mantenimiento
+	var maintenance_label = Label.new()
+	var maintenance_text = "Mantenimiento: "
+	var maintenance_items = []
+	for resource in unit_data.costos_mantenimiento:
+		if unit_data.costos_mantenimiento[resource] > 0:
+			maintenance_items.append("%s: %s" % [resource, unit_data.costos_mantenimiento[resource]])
+	maintenance_text += maintenance_items.join(", ")
+	maintenance_label.text = maintenance_text
+	maintenance_label.add_theme_font_size_override("font_size", 10)
+	maintenance_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.9))
+	container.add_child(maintenance_label)
+	
+	# Verificar si se puede reclutar
+	var recruitment_manager = get_recruitment_manager()
+	var can_recruit_result = recruitment_manager.can_recruit_unit(unit_data, town_instance)
+	
+	var recruit_button = Button.new()
+	recruit_button.text = "Reclutar"
+	recruit_button.custom_min_size = Vector2(100, 25)
+	
+	if can_recruit_result["success"]:
+		recruit_button.pressed.connect(_on_unit_recruitment_confirmed.bind(unit_data, town_instance))
+	else:
+		recruit_button.disabled = true
+		recruit_button.text = "Recursos insuficientes"
+		
+		# Mostrar recursos faltantes
+		var missing_resources = can_recruit_result.get("missing_resources", {})
+		if not missing_resources.is_empty():
+			var missing_label = Label.new()
+			var missing_text = "Faltan: "
+			var missing_items = []
+			for resource in missing_resources:
+				missing_items.append("%s: %s" % [resource, missing_resources[resource]])
+			missing_text += missing_items.join(", ")
+			missing_label.text = missing_text
+			missing_label.add_theme_font_size_override("font_size", 9)
+			missing_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+			container.add_child(missing_label)
+	
+	container.add_child(recruit_button)
+	
+	# Separador
+	var separator = HSeparator.new()
+	container.add_child(separator)
+	
+	details_content.add_child(container)
+
+func _on_unit_recruitment_confirmed(unit_data: UnitData, town_instance: Node):
+	"""Callback cuando se confirma el reclutamiento de una unidad"""
+	var recruitment_manager = get_recruitment_manager()
+	
+	if recruitment_manager.recruit_unit(unit_data, town_instance):
+		add_event("✓ %s reclutado en %s" % [unit_data.nombre, town_instance.town_data.nombre], "success")
+		
+		# Crear la instancia de la unidad en el mapa
+		create_unit_instance(unit_data, town_instance.position)
+		
+		# Refrescar el panel de reclutamiento para mostrar recursos actualizados
+		show_recruitment_panel(town_instance.town_data.nombre)
+	else:
+		add_event("✗ Falló el reclutamiento de %s" % unit_data.nombre, "error")
 
 func refresh_interface():
 	"""Refresca toda la interfaz - útil para llamar desde scripts externos"""
@@ -463,9 +672,96 @@ func start_battle(attacking_unit: Node, defending_unit: Node):
 	add_event("¡Batalla iniciada!", "warning")
 
 func recruit_unit_in_city(city_name: String, unit_type: String):
-	"""PLACEHOLDER: Reclutar unidad en ciudad"""
-	print("TODO: Implementar reclutamiento de unidades")
-	add_event("Reclutamiento ordenado en " + city_name, "info")
+	"""Implementa el reclutamiento de unidades en ciudades"""
+	# Buscar la ciudad en el mapa estratégico
+	var town_instance = find_town_by_name(city_name)
+	if not town_instance:
+		add_event("No se encontró la ciudad: " + city_name, "error")
+		return
+	
+	# Buscar el tipo de unidad solicitado
+	var unit_data = find_unit_data_by_type(unit_type)
+	if not unit_data:
+		add_event("Tipo de unidad no encontrado: " + unit_type, "error")
+		return
+	
+	# Obtener el manager de reclutamiento
+	var recruitment_manager = get_recruitment_manager()
+	if not recruitment_manager:
+		add_event("Sistema de reclutamiento no disponible", "error")
+		return
+	
+	# Intentar reclutar la unidad
+	if recruitment_manager.recruit_unit(unit_data, town_instance):
+		add_event("✓ %s reclutado en %s" % [unit_data.nombre, city_name], "success")
+		# Crear la instancia de la unidad en el mapa
+		create_unit_instance(unit_data, town_instance.position)
+	else:
+		add_event("✗ Falló el reclutamiento de %s en %s" % [unit_type, city_name], "error")
+
+func find_town_by_name(town_name: String) -> Node:
+	"""Busca una ciudad por nombre en el mapa estratégico"""
+	if not strategic_map:
+		return null
+	
+	var towns_container = strategic_map.get_node_or_null("TownsContainer")
+	if not towns_container:
+		return null
+	
+	for town in towns_container.get_children():
+		if town.get("town_data") and town.town_data.get("nombre") == town_name:
+			return town
+	
+	return null
+
+func find_unit_data_by_type(unit_type: String) -> UnitData:
+	"""Busca datos de unidad por tipo"""
+	var unit_paths = {
+		"Pelotón de Infantería": "res://Data/Units/Infantería/Pelotón.tres",
+		"Compañía de Infantería": "res://Data/Units/Infantería/Compañia.tres",
+		"Batallón de Infantería": "res://Data/Units/Infantería/Batallón.tres",
+		"Regimiento de Infantería": "res://Data/Units/Infantería/Regimiento.tres",
+		"Escuadrón de Caballería": "res://Data/Units/Caballería/Escuadrón.tres",
+		"Compañía de Caballería": "res://Data/Units/Caballería/Compañia.tres",
+		"Regimiento de Caballería": "res://Data/Units/Caballería/Regimiento.tres",
+		"Batería Pequeña": "res://Data/Units/Artillería/Batería_Pequeña.tres",
+		"Batería Mediana": "res://Data/Units/Artillería/Batería_Mediana.tres",
+		"Batería Grande": "res://Data/Units/Artillería/Batería_Grande.tres"
+	}
+	
+	var path = unit_paths.get(unit_type)
+	if path:
+		return load(path)
+	return null
+
+func get_recruitment_manager() -> Node:
+	"""Obtiene el manager de reclutamiento"""
+	var recruitment_manager = get_node_or_null("/root/RecruitmentManager")
+	if not recruitment_manager:
+		# Crear el manager si no existe
+		var manager_script = load("res://Scripts/Manager/RecruitmentManager.gd")
+		recruitment_manager = manager_script.new()
+		recruitment_manager.name = "RecruitmentManager"
+		get_tree().root.add_child(recruitment_manager)
+	return recruitment_manager
+
+func create_unit_instance(unit_data: UnitData, position: Vector2):
+	"""Crea una instancia de unidad en el mapa"""
+	var unit_scene = load("res://Scenes/Strategic/UnitInstance.tscn")
+	if unit_scene:
+		var unit_instance = unit_scene.instantiate()
+		unit_instance.set_data(unit_data)
+		unit_instance.position = position
+		
+		# Agregar al contenedor de unidades
+		var units_container = strategic_map.get_node_or_null("UnitsContainer")
+		if units_container:
+			units_container.add_child(unit_instance)
+		else:
+			strategic_map.add_child(unit_instance)
+		
+		# Refrescar la lista de unidades
+		call_deferred("populate_units_list")
 
 func manage_city_production(city_name: String, resource_type: String):
 	"""PLACEHOLDER: Gestionar producción de ciudad"""
