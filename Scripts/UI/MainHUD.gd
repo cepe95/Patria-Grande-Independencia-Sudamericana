@@ -152,7 +152,7 @@ func capitalize_resource_name(resource_name: String) -> String:
 		"canones":
 			return "Cañones"
 		_:
-			return resource_name[0].to_upper() + resource_name.substr(1)
+			return resource_name[0].to_upper() + resource_name.slice(1)
 
 func setup_dynamic_resource_display():
 	"""Configura dinámicamente los labels de recursos basándose en FactionData"""
