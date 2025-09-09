@@ -18,6 +18,9 @@ var division_seleccionada = null
 var subunidades_libres: Array[UnitData] = []
 
 func _ready():
+	# Create unit instances for testing the selection system
+	_create_test_units()
+	
 	# Crear división patriota
 	var patriota_division_1 := DivisionData.new()
 	patriota_division_1.nombre = "División Leal a la Unión del Plata"
@@ -72,6 +75,41 @@ func _ready():
 	game_clock.date_changed.connect(_on_game_clock_date_changed)
 	# Muestra la fecha inicial
 	date_label.text = game_clock.current_date.as_string()
+
+func _create_test_units():
+	# Create some test units for the selection system
+	var unit_scene = preload("res://Scenes/Strategic/UnitInstance.tscn")
+	
+	# Create patriot units
+	var patriot_infantry = preload("res://Data/Units/Infantería/Pelotón.tres")
+	var patriot_cavalry = preload("res://Data/Units/Caballería/Escuadrón.tres")
+	
+	# Create unit instances
+	var positions = [
+		Vector2(-200, -100),
+		Vector2(-150, -100), 
+		Vector2(-100, -100),
+		Vector2(-200, -50),
+		Vector2(-150, -50)
+	]
+	
+	for i in range(positions.size()):
+		var unit_instance = unit_scene.instantiate()
+		var unit_data = patriot_infantry if i % 2 == 0 else patriot_cavalry
+		
+		# Create a copy of the unit data with faction info
+		var copied_data = UnitData.new()
+		copied_data.nombre = unit_data.nombre
+		copied_data.rama = unit_data.rama
+		copied_data.nivel = unit_data.nivel
+		copied_data.tamaño = unit_data.tamaño
+		copied_data.icono = unit_data.icono
+		copied_data.cantidad = unit_data.cantidad
+		copied_data.faccion = "Patriota"  # Make sure they're selectable
+		
+		unit_instance.set_data(copied_data)
+		unit_instance.position = positions[i]
+		units_container.add_child(unit_instance)
 
 func _on_game_clock_date_changed(new_date):
 	date_label.text = new_date.as_string()
@@ -141,6 +179,10 @@ func _process(delta: float) -> void:
 	camera.position += move * move_speed * delta
 
 func _unhandled_input(event):
+	# Handle selection and movement input
+	_handle_selection_input(event)
+	
+	# Original division selection logic (keep for compatibility)
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		# Si clickeamos en "nada", deseleccionamos
 		if not get_viewport().gui_get_focus_owner():
@@ -154,6 +196,78 @@ func _unhandled_input(event):
 			_zoom_at_mouse(zoom_speed)  # acercar
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_zoom_at_mouse(-zoom_speed)  # alejar
+
+func _handle_selection_input(event):
+	var shift_pressed = Input.is_action_pressed("ui_shift") if Input.has_action("ui_shift") else false
+	
+	if event is InputEventMouseButton:
+		var screen_mouse_pos = get_viewport().get_mouse_position()
+		var global_mouse_pos = get_global_mouse_position()
+		
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				# Start potential drag selection (use screen coordinates for UI)
+				SelectionManager.start_selection_rect(screen_mouse_pos)
+			else:
+				# Finish drag selection or handle click selection
+				if SelectionManager.is_drawing_rect():
+					SelectionManager.finish_selection_rect(units_container, shift_pressed, camera)
+				else:
+					# Click selection - check if we clicked on a unit (use world coordinates)
+					var clicked_unit = _get_unit_at_position(global_mouse_pos)
+					if clicked_unit:
+						if shift_pressed and SelectionManager.is_unit_selected(clicked_unit):
+							SelectionManager.deselect_unit(clicked_unit)
+						else:
+							SelectionManager.select_unit(clicked_unit, shift_pressed)
+					else:
+						# Clicked empty space - clear selection
+						if not shift_pressed:
+							SelectionManager.clear_selection()
+		
+		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			# Right click - movement order (use world coordinates)
+			var selected_units = SelectionManager.get_selected_units()
+			if not selected_units.is_empty():
+				SelectionManager.move_selected_units_to(global_mouse_pos)
+	
+	elif event is InputEventMouseMotion:
+		# Update selection rectangle while dragging (use screen coordinates)
+		if SelectionManager.is_drawing_rect():
+			SelectionManager.update_selection_rect(get_viewport().get_mouse_position())
+
+func _get_unit_at_position(pos: Vector2) -> Node:
+	# Check all units in the units container to see if any contain the position
+	for unit in units_container.get_children():
+		if _is_position_over_unit(pos, unit):
+			return unit
+	return null
+
+func _is_position_over_unit(pos: Vector2, unit: Node) -> bool:
+	# Check if position is over the unit's visual area
+	var unit_rect: Rect2
+	
+	# Try to get the unit's visual bounds
+	if unit.has_method("obtener_area_visual"):
+		unit_rect = unit.obtener_area_visual()
+	elif unit.has_node("Sprite2D"):
+		var sprite = unit.get_node("Sprite2D")
+		if sprite.texture:
+			var size = sprite.texture.get_size() * sprite.scale
+			unit_rect = Rect2(unit.global_position - size / 2, size)
+		else:
+			unit_rect = Rect2(unit.global_position - Vector2(25, 25), Vector2(50, 50))
+	elif unit.has_node("Icon"):
+		var icon = unit.get_node("Icon")
+		var size = Vector2(50, 50)  # Default size
+		if icon.texture:
+			size = icon.texture.get_size() * icon.scale
+		unit_rect = Rect2(unit.global_position - size / 2, size)
+	else:
+		# Default fallback area
+		unit_rect = Rect2(unit.global_position - Vector2(25, 25), Vector2(50, 50))
+	
+	return unit_rect.has_point(pos)
 
 func _zoom_at_mouse(amount: float) -> void:
 	var old_zoom: Vector2 = camera.zoom
