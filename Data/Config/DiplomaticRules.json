@@ -1,0 +1,130 @@
+{
+  "default_relation_level": 0,
+  "max_proposals_per_faction": 3,
+  "proposal_expiry_turns": 5,
+  "relation_decay_rate": 1,
+  "diplomatic_events": {
+    "alliance_formed": {
+      "relation_bonus": 50,
+      "reputation_bonus": 10,
+      "description": "Se ha formado una alianza entre las facciones"
+    },
+    "war_declared": {
+      "relation_penalty": -80,
+      "reputation_penalty": -5,
+      "description": "Se ha declarado la guerra entre las facciones"
+    },
+    "peace_treaty": {
+      "relation_bonus": 30,
+      "reputation_bonus": 5,
+      "description": "Se ha firmado un tratado de paz"
+    },
+    "trade_agreement": {
+      "relation_bonus": 20,
+      "trade_modifier": 1.5,
+      "description": "Se ha establecido un acuerdo comercial"
+    },
+    "military_access": {
+      "relation_bonus": 15,
+      "description": "Se ha concedido acceso militar"
+    },
+    "technology_sharing": {
+      "relation_bonus": 25,
+      "research_bonus": 0.1,
+      "description": "Se ha acordado el intercambio de tecnología"
+    }
+  },
+  "proposal_types": {
+    "alliance": {
+      "base_acceptance": 30,
+      "relation_requirement": 40,
+      "description": "Propuesta de alianza militar y política"
+    },
+    "peace_treaty": {
+      "base_acceptance": 60,
+      "relation_requirement": -50,
+      "description": "Tratado para finalizar hostilidades"
+    },
+    "trade_agreement": {
+      "base_acceptance": 50,
+      "relation_requirement": 0,
+      "description": "Acuerdo comercial bilateral"
+    },
+    "war_declaration": {
+      "base_acceptance": 20,
+      "relation_requirement": -30,
+      "description": "Declaración formal de guerra"
+    },
+    "military_access": {
+      "base_acceptance": 40,
+      "relation_requirement": 20,
+      "description": "Permiso de paso militar"
+    },
+    "technology_sharing": {
+      "base_acceptance": 35,
+      "relation_requirement": 30,
+      "description": "Intercambio de conocimientos tecnológicos"
+    }
+  },
+  "ai_behavior": {
+    "aggressive": {
+      "war_tendency": 0.8,
+      "alliance_tendency": 0.3,
+      "trade_tendency": 0.4
+    },
+    "defensive": {
+      "war_tendency": 0.2,
+      "alliance_tendency": 0.7,
+      "trade_tendency": 0.6
+    },
+    "balanced": {
+      "war_tendency": 0.4,
+      "alliance_tendency": 0.5,
+      "trade_tendency": 0.7
+    },
+    "peaceful": {
+      "war_tendency": 0.1,
+      "alliance_tendency": 0.6,
+      "trade_tendency": 0.9
+    }
+  },
+  "relation_effects": {
+    "economic": {
+      "alliance": {
+        "trade_bonus": 1.5,
+        "resource_sharing": true
+      },
+      "trade_agreement": {
+        "trade_bonus": 1.3,
+        "tariff_reduction": 0.5
+      },
+      "war": {
+        "trade_penalty": 0.1,
+        "embargo": true
+      }
+    },
+    "military": {
+      "alliance": {
+        "reinforcement_bonus": 1.2,
+        "shared_intelligence": true
+      },
+      "defensive_pact": {
+        "mutual_defense": true,
+        "garrison_bonus": 1.1
+      },
+      "war": {
+        "combat_bonus_vs_enemy": 1.1,
+        "attrition_increase": 1.2
+      }
+    },
+    "research": {
+      "technology_sharing": {
+        "research_speed_bonus": 1.2,
+        "tech_cost_reduction": 0.8
+      },
+      "alliance": {
+        "research_cooperation": 1.1
+      }
+    }
+  }
+}

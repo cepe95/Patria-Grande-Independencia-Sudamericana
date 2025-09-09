@@ -36,3 +36,9 @@ class_name FactionData
 	"moral": 100,
 	"prestigio": 0
 }
+
+# === PROPIEDADES DIPLOMÁTICAS ===
+@export var diplomatic_reputation: int = 0  # Reputación diplomática general
+@export var diplomatic_style: String = "balanced"  # aggressive, defensive, balanced, peaceful
+@export var preferred_relation_type: String = "neutral"  # alliance, neutral, isolation
+@export var active_proposals: Array[String] = []  # IDs de propuestas activas
