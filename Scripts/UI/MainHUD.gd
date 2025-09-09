@@ -11,6 +11,7 @@ extends Control
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var research_panel: Panel = $UI/ResearchPanel
 @onready var pause_menu: Control = $UI/PauseMenu
+@onready var notification_container: Control = $UI/NotificationContainer
 
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
@@ -40,6 +41,7 @@ var current_turn: int = 1
 # === INICIALIZACIÓN ===
 func _ready():
 	print("✓ MainHUD inicializado")
+	add_to_group("main_hud")  # Añadir a grupo para que ResearchManager pueda encontrarlo
 	setup_ui_connections()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
@@ -105,12 +107,23 @@ func _on_new_division_added(node: Node):
 # === MANEJO DE RECURSOS ===
 func initialize_resource_display():
 	"""Inicializa la visualización de recursos"""
-	current_resources = {
-		"dinero": 1000,
-		"comida": 500,
-		"municion": 200
-	}
-	update_resource_display()
+	# Inicializar desde FactionManager si está disponible
+	if FactionManager.faccion_existe("Patriota"):
+		var faction = FactionManager.obtener_faccion("Patriota")
+		# Asignar recursos iniciales si la facción está vacía
+		if faction.recursos.get("dinero", 0) == 0:
+			faction.recursos["dinero"] = 1000
+			faction.recursos["comida"] = 500
+			faction.recursos["municion"] = 200
+		update_resources_from_faction()
+	else:
+		# Fallback a recursos por defecto
+		current_resources = {
+			"dinero": 1000,
+			"comida": 500,
+			"municion": 200
+		}
+		update_resource_display()
 
 func update_resource_display():
 	"""Actualiza la visualización de recursos en la barra superior"""
@@ -530,6 +543,8 @@ func _on_research_started(technology_id: String):
 		var tech = ResearchManager.get_technology_by_id(technology_id)
 		if tech:
 			add_event("Investigación iniciada: " + tech.name, "success")
+			# Actualizar recursos después de la inversión inicial
+			update_resources_from_faction()
 
 func _on_technology_selected(technology_id: String):
 	"""Callback cuando se selecciona una tecnología"""
@@ -555,6 +570,9 @@ func _on_research_completed(technology_id: String, faction_name: String):
 			var benefits_summary = tech.get_benefits_summary()
 			if benefits_summary != "":
 				add_event("Beneficios obtenidos: " + benefits_summary.split("\n")[0], "info")
+			
+			# Actualizar recursos y estadísticas
+			update_resources_from_faction()
 
 func _on_new_technology_available(technology_id: String, faction_name: String):
 	"""Callback cuando se desbloquea una nueva tecnología"""
@@ -562,3 +580,17 @@ func _on_new_technology_available(technology_id: String, faction_name: String):
 		var tech = ResearchManager.get_technology_by_id(technology_id)
 		if tech:
 			add_event("Nueva tecnología disponible: " + tech.name, "info")
+
+func get_current_turn() -> int:
+	"""Retorna el turno actual para integración con otros sistemas"""
+	return current_turn
+
+func update_resources_from_faction():
+	"""Actualiza la visualización de recursos desde la facción actual"""
+	var faction_name = "Patriota"  # TODO: Obtener facción del jugador
+	if FactionManager.faccion_existe(faction_name):
+		var faction = FactionManager.obtener_faccion(faction_name)
+		current_resources["dinero"] = faction.recursos.get("dinero", 0)
+		current_resources["comida"] = faction.recursos.get("comida", 0) + faction.recursos.get("pan", 0)
+		current_resources["municion"] = faction.recursos.get("municion", 0)
+		update_resource_display()

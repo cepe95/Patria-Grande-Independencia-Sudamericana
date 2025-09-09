@@ -6,6 +6,9 @@ func _ready():
 	var realista := load("res://Data/Factions/Realista.tres")
 	registrar_faccion(patriota.nombre, patriota)
 	registrar_faccion(realista.nombre, realista)
+	
+	# Asegurar que las facciones tengan recursos iniciales para el sistema de investigación
+	initialize_faction_resources()
 
 
 func inicializar_facciones():
@@ -101,3 +104,19 @@ func agregar_recursos(nombre: String, cantidad: int):
 
 func reiniciar():
 	facciones.clear()
+
+func initialize_faction_resources():
+	"""Asegura que las facciones tengan recursos iniciales para el sistema de investigación"""
+	for faction_name in facciones:
+		var faction = facciones[faction_name]
+		# Establecer recursos mínimos si están vacíos
+		if faction.recursos.get("dinero", 0) <= 0:
+			faction.recursos["dinero"] = 1000
+		if faction.recursos.get("comida", 0) <= 0:
+			faction.recursos["comida"] = 500  
+		if faction.recursos.get("municion", 0) <= 0:
+			faction.recursos["municion"] = 200
+		if faction.recursos.get("moral", 0) <= 0:
+			faction.recursos["moral"] = 100
+		if faction.recursos.get("prestigio", 0) <= 0:
+			faction.recursos["prestigio"] = 0

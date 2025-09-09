@@ -214,21 +214,123 @@ func apply_technology_benefits(tech: TechnologyData, faction_name: String):
 
 func apply_economic_benefits(benefits: Dictionary, faction_name: String):
 	"""Aplica beneficios económicos (integración con sistema económico)"""
-	# TODO: Integrar con ResourceManager y sistema económico
+	if not FactionManager.faccion_existe(faction_name):
+		return
+	
+	var faction = FactionManager.obtener_faccion(faction_name)
+	
 	for benefit in benefits:
-		print("  + Beneficio económico: %s = %s" % [benefit, benefits[benefit]])
+		var value = benefits[benefit]
+		match benefit:
+			"resource_generation":
+				# Aplicar bonus a generación de recursos
+				var bonus_percentage = value / 100.0
+				for resource in ["dinero", "comida", "municion"]:
+					var current_amount = faction.recursos.get(resource, 0)
+					var bonus_amount = int(current_amount * bonus_percentage)
+					faction.recursos[resource] = current_amount + bonus_amount
+				print("  + Beneficio económico aplicado: +%d%% generación de recursos" % value)
+			
+			"trade_income":
+				# Aumentar dinero por mejoras comerciales
+				var bonus_money = int(faction.recursos.get("dinero", 0) * (value / 100.0))
+				faction.recursos["dinero"] = faction.recursos.get("dinero", 0) + bonus_money
+				print("  + Beneficio económico aplicado: +%d dinero por comercio mejorado" % bonus_money)
+			
+			"gold_production", "silver_production":
+				# Aumentar recursos de oro/plata
+				var resource_type = "oro" if benefit == "gold_production" else "plata"
+				var bonus_amount = value
+				faction.recursos[resource_type] = faction.recursos.get(resource_type, 0) + bonus_amount
+				print("  + Beneficio económico aplicado: +%d %s" % [bonus_amount, resource_type])
+			
+			"population_growth":
+				# Aumentar moral como proxy de crecimiento poblacional
+				faction.recursos["moral"] = faction.recursos.get("moral", 100) + value
+				print("  + Beneficio económico aplicado: +%d moral por crecimiento poblacional" % value)
+			
+			_:
+				print("  + Beneficio económico: %s = %s" % [benefit, value])
 
 func apply_military_benefits(benefits: Dictionary, faction_name: String):
 	"""Aplica beneficios militares (integración con sistema militar)"""
-	# TODO: Integrar con sistema militar y unidades
+	if not FactionManager.faccion_existe(faction_name):
+		return
+	
+	var faction = FactionManager.obtener_faccion(faction_name)
+	
 	for benefit in benefits:
-		print("  + Beneficio militar: %s = %s" % [benefit, benefits[benefit]])
+		var value = benefits[benefit]
+		match benefit:
+			"morale_bonus", "unit_morale":
+				# Aumentar moral de la facción
+				faction.recursos["moral"] = faction.recursos.get("moral", 100) + value
+				print("  + Beneficio militar aplicado: +%d moral" % value)
+			
+			"recruitment_rate":
+				# Reducir costo de reclutamiento (simulado con bonus de dinero)
+				var recruitment_bonus = int(faction.recursos.get("dinero", 0) * 0.1)
+				faction.recursos["dinero"] = faction.recursos.get("dinero", 0) + recruitment_bonus
+				print("  + Beneficio militar aplicado: +%d dinero por reclutamiento eficiente" % recruitment_bonus)
+			
+			"infantry_attack", "mobility", "defensive_bonus":
+				# Estos beneficios se aplicarían a las unidades directamente
+				# Por ahora los registramos como modificadores de facción
+				var modifier_key = "military_" + benefit
+				if not faction.recursos.has(modifier_key):
+					faction.recursos[modifier_key] = 0
+				faction.recursos[modifier_key] = faction.recursos.get(modifier_key, 0) + value
+				print("  + Beneficio militar aplicado: +%d %s" % [value, benefit])
+			
+			"unit_supply":
+				# Mejorar suministros aumentando comida disponible
+				var supply_bonus = value * 5  # Multiplicador para hacer el efecto visible
+				faction.recursos["comida"] = faction.recursos.get("comida", 0) + supply_bonus
+				print("  + Beneficio militar aplicado: +%d comida por mejores suministros" % supply_bonus)
+			
+			_:
+				print("  + Beneficio militar: %s = %s" % [benefit, value])
 
 func apply_diplomatic_benefits(benefits: Dictionary, faction_name: String):
 	"""Aplica beneficios diplomáticos (integración con sistema diplomático)"""
-	# TODO: Integrar con sistema diplomático
+	if not FactionManager.faccion_existe(faction_name):
+		return
+	
+	var faction = FactionManager.obtener_faccion(faction_name)
+	
 	for benefit in benefits:
-		print("  + Beneficio diplomático: %s = %s" % [benefit, benefits[benefit]])
+		var value = benefits[benefit]
+		match benefit:
+			"patriot_relations", "trade_relations":
+				# Mejorar prestigio como proxy de relaciones mejoradas
+				faction.recursos["prestigio"] = faction.recursos.get("prestigio", 0) + value
+				print("  + Beneficio diplomático aplicado: +%d prestigio por relaciones mejoradas" % value)
+			
+			"alliance_stability":
+				# Aumentar moral por alianzas estables
+				var stability_bonus = int(value / 2)
+				faction.recursos["moral"] = faction.recursos.get("moral", 100) + stability_bonus
+				print("  + Beneficio diplomático aplicado: +%d moral por alianzas estables" % stability_bonus)
+			
+			"intelligence_gathering", "counter_intelligence":
+				# Crear recursos de inteligencia si no existen
+				var intel_key = "inteligencia"
+				faction.recursos[intel_key] = faction.recursos.get(intel_key, 0) + value
+				print("  + Beneficio diplomático aplicado: +%d inteligencia" % value)
+			
+			"propaganda_effectiveness":
+				# Aumentar moral por propaganda efectiva
+				faction.recursos["moral"] = faction.recursos.get("moral", 100) + int(value / 2)
+				print("  + Beneficio diplomático aplicado: +%d moral por propaganda" % int(value / 2))
+			
+			"trade_agreements":
+				# Aumentar dinero por acuerdos comerciales
+				var trade_bonus = value * 10  # Multiplicador para hacer visible el efecto
+				faction.recursos["dinero"] = faction.recursos.get("dinero", 0) + trade_bonus
+				print("  + Beneficio diplomático aplicado: +%d dinero por acuerdos comerciales" % trade_bonus)
+			
+			_:
+				print("  + Beneficio diplomático: %s = %s" % [benefit, value])
 
 func check_newly_available_technologies(faction_name: String):
 	"""Verifica si se desbloquearon nuevas tecnologías"""
@@ -298,8 +400,26 @@ func get_technology_by_id(technology_id: String) -> TechnologyData:
 
 func consume_research_resources(resources: Dictionary, faction_name: String) -> bool:
 	"""Consume recursos para investigación (integra con ResourceManager)"""
-	# TODO: Integrar con ResourceManager real
-	# Por ahora simular que siempre hay recursos
+	if not FactionManager.faccion_existe(faction_name):
+		return false
+	
+	var faction = FactionManager.obtener_faccion(faction_name)
+	var faction_resources = faction.recursos
+	
+	# Verificar si hay suficientes recursos
+	for resource in resources:
+		var required_amount = resources[resource]
+		var available_amount = faction_resources.get(resource, 0)
+		if available_amount < required_amount:
+			print("⚠ Recursos insuficientes para investigación: %s necesita %d de %s, disponible %d" % [faction_name, required_amount, resource, available_amount])
+			return false
+	
+	# Consumir recursos
+	for resource in resources:
+		var amount = resources[resource]
+		faction_resources[resource] = faction_resources.get(resource, 0) - amount
+		print("  - Consumido %d de %s para investigación" % [amount, resource])
+	
 	return true
 
 func get_faction_resources(faction_name: String) -> Dictionary:
@@ -312,7 +432,12 @@ func get_faction_resources(faction_name: String) -> Dictionary:
 
 func get_current_turn() -> int:
 	"""Obtiene el turno actual del juego"""
-	# TODO: Integrar con sistema de turnos
+	# Integrar con MainHUD si está disponible
+	var main_hud = get_tree().get_first_node_in_group("main_hud")
+	if main_hud and main_hud.has_method("get_current_turn"):
+		return main_hud.get_current_turn()
+	
+	# Fallback a un contador interno si no hay integración
 	return 1
 
 # === MÉTODOS PARA UI ===
