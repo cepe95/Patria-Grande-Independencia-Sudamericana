@@ -42,23 +42,142 @@ offset_bottom = -10.0
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="DineroLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+[node name="PanLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
 layout_mode = 2
-text = "Dinero: 1000"
+text = "Pan: 0"
 
 [node name="VSeparator" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
 layout_mode = 2
 
-[node name="ComidaLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+[node name="CarneLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
 layout_mode = 2
-text = "Comida: 500"
+text = "Carne: 0"
 
 [node name="VSeparator2" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
 layout_mode = 2
 
+[node name="FrutaLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Fruta: 0"
+
+[node name="VSeparator3" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="VerduraLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Verdura: 0"
+
+[node name="VSeparator4" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="VinoLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Vino: 0"
+
+[node name="VSeparator5" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="AguardienteLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Aguardiente: 0"
+
+[node name="VSeparator6" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="TabacoLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Tabaco: 0"
+
+[node name="VSeparator7" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="DineroLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Dinero: 0"
+
+[node name="VSeparator8" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="OroLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Oro: 0"
+
+[node name="VSeparator9" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="PlataLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Plata: 0"
+
+[node name="VSeparator10" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
 [node name="MunicionLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
 layout_mode = 2
-text = "Munición: 200"
+text = "Munición: 0"
+
+[node name="VSeparator11" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="PolvoraLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Pólvora: 0"
+
+[node name="VSeparator12" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="MosquetesLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Mosquetes: 0"
+
+[node name="VSeparator13" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="SablesLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Sables: 0"
+
+[node name="VSeparator14" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="LanzasLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Lanzas: 0"
+
+[node name="VSeparator15" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="CañonesLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Cañones: 0"
+
+[node name="VSeparator16" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="CaballosLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Caballos: 0"
+
+[node name="VSeparator17" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="BibliasLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Biblias: 0"
+
+[node name="VSeparator18" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="MoralLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Moral: 100"
+
+[node name="VSeparator19" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="PrestigioLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Prestigio: 0"
 
 [node name="DateTurnContainer" type="VBoxContainer" parent="UI/ResourceBar/Content"]
 layout_mode = 2

@@ -11,10 +11,36 @@ extends Control
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
 
-# Referencias a elementos específicos de los paneles
+# Referencias a elementos específicos de los paneles - Recursos
+# Alimentación
+@onready var pan_label: Label = $UI/ResourceBar/Content/ResourcesContainer/PanLabel
+@onready var carne_label: Label = $UI/ResourceBar/Content/ResourcesContainer/CarneLabel
+@onready var fruta_label: Label = $UI/ResourceBar/Content/ResourcesContainer/FrutaLabel
+@onready var verdura_label: Label = $UI/ResourceBar/Content/ResourcesContainer/VerduraLabel
+@onready var vino_label: Label = $UI/ResourceBar/Content/ResourcesContainer/VinoLabel
+@onready var aguardiente_label: Label = $UI/ResourceBar/Content/ResourcesContainer/AguardienteLabel
+@onready var tabaco_label: Label = $UI/ResourceBar/Content/ResourcesContainer/TabacoLabel
+
+# Economía
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
-@onready var comida_label: Label = $UI/ResourceBar/Content/ResourcesContainer/ComidaLabel
+@onready var oro_label: Label = $UI/ResourceBar/Content/ResourcesContainer/OroLabel
+@onready var plata_label: Label = $UI/ResourceBar/Content/ResourcesContainer/PlataLabel
+
+# Militar
 @onready var municion_label: Label = $UI/ResourceBar/Content/ResourcesContainer/MunicionLabel
+@onready var polvora_label: Label = $UI/ResourceBar/Content/ResourcesContainer/PolvoraLabel
+@onready var mosquetes_label: Label = $UI/ResourceBar/Content/ResourcesContainer/MosquetesLabel
+@onready var sables_label: Label = $UI/ResourceBar/Content/ResourcesContainer/SablesLabel
+@onready var lanzas_label: Label = $UI/ResourceBar/Content/ResourcesContainer/LanzasLabel
+@onready var cañones_label: Label = $UI/ResourceBar/Content/ResourcesContainer/CañonesLabel
+@onready var caballos_label: Label = $UI/ResourceBar/Content/ResourcesContainer/CaballosLabel
+
+# Cultural
+@onready var biblias_label: Label = $UI/ResourceBar/Content/ResourcesContainer/BibliasLabel
+
+# Estado estratégico
+@onready var moral_label: Label = $UI/ResourceBar/Content/ResourcesContainer/MoralLabel
+@onready var prestigio_label: Label = $UI/ResourceBar/Content/ResourcesContainer/PrestigioLabel
 @onready var date_label: Label = $UI/ResourceBar/Content/DateTurnContainer/DateLabel
 @onready var turn_label: Label = $UI/ResourceBar/Content/DateTurnContainer/TurnLabel
 
@@ -99,17 +125,69 @@ func _on_new_division_added(node: Node):
 func initialize_resource_display():
 	"""Inicializa la visualización de recursos"""
 	current_resources = {
+		# Alimentación
+		"pan": 100,
+		"carne": 50,
+		"fruta": 75,
+		"verdura": 60,
+		"vino": 25,
+		"aguardiente": 10,
+		"tabaco": 30,
+		
+		# Economía
 		"dinero": 1000,
-		"comida": 500,
-		"municion": 200
+		"oro": 5,
+		"plata": 20,
+		
+		# Militar
+		"municion": 200,
+		"polvora": 150,
+		"mosquetes": 80,
+		"sables": 60,
+		"lanzas": 120,
+		"cañones": 8,
+		"caballos": 40,
+		
+		# Cultural
+		"biblias": 15,
+		
+		# Estado estratégico
+		"moral": 100,
+		"prestigio": 50
 	}
 	update_resource_display()
 
 func update_resource_display():
 	"""Actualiza la visualización de recursos en la barra superior"""
+	# Alimentación
+	pan_label.text = "Pan: %d" % current_resources.get("pan", 0)
+	carne_label.text = "Carne: %d" % current_resources.get("carne", 0)
+	fruta_label.text = "Fruta: %d" % current_resources.get("fruta", 0)
+	verdura_label.text = "Verdura: %d" % current_resources.get("verdura", 0)
+	vino_label.text = "Vino: %d" % current_resources.get("vino", 0)
+	aguardiente_label.text = "Aguardiente: %d" % current_resources.get("aguardiente", 0)
+	tabaco_label.text = "Tabaco: %d" % current_resources.get("tabaco", 0)
+	
+	# Economía
 	dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
-	comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
+	oro_label.text = "Oro: %d" % current_resources.get("oro", 0)
+	plata_label.text = "Plata: %d" % current_resources.get("plata", 0)
+	
+	# Militar
 	municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+	polvora_label.text = "Pólvora: %d" % current_resources.get("polvora", 0)
+	mosquetes_label.text = "Mosquetes: %d" % current_resources.get("mosquetes", 0)
+	sables_label.text = "Sables: %d" % current_resources.get("sables", 0)
+	lanzas_label.text = "Lanzas: %d" % current_resources.get("lanzas", 0)
+	cañones_label.text = "Cañones: %d" % current_resources.get("cañones", 0)
+	caballos_label.text = "Caballos: %d" % current_resources.get("caballos", 0)
+	
+	# Cultural
+	biblias_label.text = "Biblias: %d" % current_resources.get("biblias", 0)
+	
+	# Estado estratégico
+	moral_label.text = "Moral: %d" % current_resources.get("moral", 100)
+	prestigio_label.text = "Prestigio: %d" % current_resources.get("prestigio", 0)
 
 func update_date_turn_display(date_text: String = "", turn: int = -1):
 	"""Actualiza la visualización de fecha y turno"""
