@@ -21,6 +21,7 @@ UnitUtils="*res://Scripts/Strategic/UnitUtils.gd"
 DivisionAssembler="*res://Scripts/Strategic/DivisionAssembler.gd"
 FactionManager="*res://Systems/FactionManager.gd"
 SelectionManager="*res://Systems/SelectionManager.gd"
+SettingsManager="*res://Scripts/Manager/SettingsManager.gd"
 
 [display]
 
