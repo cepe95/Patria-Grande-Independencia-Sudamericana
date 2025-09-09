@@ -1,0 +1,86 @@
+[
+  {
+    "id": "revolucion_mayo",
+    "title": "Revolución de Mayo",
+    "description": "El 25 de mayo de 1810 marca el inicio del proceso revolucionario en el Río de la Plata. Se forma la Primera Junta de Gobierno, dando el primer paso hacia la independencia del Virreinato del Río de la Plata.",
+    "event_type": 0,
+    "image_path": "",
+    "trigger_date": "1810/05/25",
+    "trigger_turn": -1,
+    "random_chance": 0.0,
+    "trigger_conditions": [],
+    "has_choices": true,
+    "choices": [
+      {
+        "text": "Apoyar activamente la revolución",
+        "effects": [
+          {"type": 0, "resource": "dinero", "amount": -100},
+          {"type": 0, "resource": "moral", "amount": 20}
+        ]
+      },
+      {
+        "text": "Mantener una posición cautelosa", 
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": 5}
+        ]
+      },
+      {
+        "text": "Oponerse al movimiento revolucionario",
+        "effects": [
+          {"type": 0, "resource": "dinero", "amount": 50},
+          {"type": 0, "resource": "moral", "amount": -15}
+        ]
+      }
+    ],
+    "effects": [
+      {"type": 0, "resource": "moral", "amount": 10}
+    ],
+    "can_repeat": false,
+    "priority": 10,
+    "category": "político"
+  },
+  {
+    "id": "independencia_chile",
+    "title": "Declaración de Independencia de Chile",
+    "description": "El 12 de febrero de 1818, Chile declara formalmente su independencia de España. Este evento fortalece el movimiento independentista en toda Sudamérica.",
+    "event_type": 0,
+    "trigger_date": "1818/02/12",
+    "has_choices": false,
+    "effects": [
+      {"type": 0, "resource": "moral", "amount": 15},
+      {"type": 0, "resource": "dinero", "amount": 100}
+    ],
+    "can_repeat": false,
+    "priority": 8,
+    "category": "político"
+  },
+  {
+    "id": "batalla_maipu",
+    "title": "Batalla de Maipú", 
+    "description": "El 5 de abril de 1818, las fuerzas patriotas comandadas por San Martín y O'Higgins derrotan definitivamente a las tropas realistas en Maipú, consolidando la independencia de Chile.",
+    "event_type": 0,
+    "trigger_date": "1818/04/05",
+    "has_choices": true,
+    "choices": [
+      {
+        "text": "Enviar refuerzos para la batalla",
+        "effects": [
+          {"type": 0, "resource": "municion", "amount": -50},
+          {"type": 0, "resource": "moral", "amount": 25}
+        ]
+      },
+      {
+        "text": "Mantener las fuerzas en reserva",
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": 10}
+        ]
+      }
+    ],
+    "effects": [
+      {"type": 0, "resource": "moral", "amount": 15}
+    ],
+    "can_repeat": false,
+    "priority": 9,
+    "category": "militar"
+  }
+]

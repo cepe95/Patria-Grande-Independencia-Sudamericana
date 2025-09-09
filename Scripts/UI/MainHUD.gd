@@ -11,6 +11,9 @@ extends Control
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
 
+# EventModal - se instancia dinámicamente
+var event_modal: Control
+
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
 @onready var comida_label: Label = $UI/ResourceBar/Content/ResourcesContainer/ComidaLabel
@@ -35,10 +38,17 @@ var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
 
+# Referencias al sistema de eventos
+var event_manager: Node
+
 # === INICIALIZACIÓN ===
 func _ready():
 	print("✓ MainHUD inicializado")
+	# Agregar a grupo para que EventManager pueda encontrarlo
+	add_to_group("main_hud")
+	
 	setup_ui_connections()
+	setup_event_system()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
 	setup_strategic_map_connections()
@@ -57,6 +67,30 @@ func setup_ui_connections():
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
+
+func setup_event_system():
+	"""Configura el sistema de eventos"""
+	# Buscar EventManager
+	event_manager = get_node_or_null("/root/EventManager")
+	if not event_manager:
+		# Si no está como autoload, buscar en la escena
+		event_manager = get_tree().get_first_node_in_group("event_manager")
+	
+	if event_manager:
+		print("✓ MainHUD conectado a EventManager")
+	else:
+		print("⚠ EventManager no encontrado")
+	
+	# Instanciar EventModal
+	var event_modal_scene = preload("res://Scenes/UI/EventModal.tscn")
+	event_modal = event_modal_scene.instantiate()
+	add_child(event_modal)
+	
+	# Conectar señales del modal
+	if event_modal:
+		event_modal.event_choice_made.connect(_on_event_choice_made)
+		event_modal.event_dismissed.connect(_on_event_dismissed)
+		print("✓ EventModal configurado")
 
 func setup_strategic_map_connections():
 	"""Conecta las señales del mapa estratégico"""
@@ -101,7 +135,8 @@ func initialize_resource_display():
 	current_resources = {
 		"dinero": 1000,
 		"comida": 500,
-		"municion": 200
+		"municion": 200,
+		"moral": 50
 	}
 	update_resource_display()
 
@@ -110,6 +145,25 @@ func update_resource_display():
 	dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
 	comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
 	municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+
+func get_current_resources() -> Dictionary:
+	"""Retorna los recursos actuales - usado por EventManager"""
+	return current_resources.duplicate()
+
+func modify_resource(resource_name: String, amount: int):
+	"""Modifica un recurso específico - usado por EventManager"""
+	if current_resources.has(resource_name):
+		current_resources[resource_name] += amount
+		# Evitar valores negativos
+		if current_resources[resource_name] < 0:
+			current_resources[resource_name] = 0
+		update_resource_display()
+		
+		# Log del cambio
+		var sign = "+" if amount >= 0 else ""
+		add_event("%s: %s%d" % [resource_name.capitalize(), sign, amount], "info")
+	else:
+		print("⚠ Recurso desconocido: %s" % resource_name)
 
 func update_date_turn_display(date_text: String = "", turn: int = -1):
 	"""Actualiza la visualización de fecha y turno"""
@@ -401,7 +455,16 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Disparar verificación de eventos
+	if event_manager and event_manager.has_method("check_events_for_turn"):
+		var current_date = null
+		# Obtener fecha actual del GameClock si está disponible
+		var game_clock = strategic_map.get_node_or_null("GameClock") if strategic_map else null
+		if game_clock and game_clock.get("current_date"):
+			current_date = game_clock.current_date
+		
+		event_manager.check_events_for_turn(current_turn, current_date)
+	
 	print("✓ Avanzando al turno: ", current_turn)
 
 func _on_pause_pressed():
@@ -433,6 +496,31 @@ func refresh_interface():
 	populate_city_unit_lists()
 	connect_to_existing_divisions()
 	add_event("Interfaz actualizada", "info")
+
+# === SISTEMA DE EVENTOS ===
+
+func show_event_modal(event: EventData):
+	"""Muestra un evento en el modal - llamado por EventManager"""
+	if event_modal and event_modal.has_method("show_event"):
+		event_modal.show_event(event)
+	else:
+		print("⚠ EventModal no disponible, mostrando evento como log")
+		show_event_as_log_entry(event)
+
+func show_event_as_log_entry(event: EventData):
+	"""Muestra el evento como entrada de log simple"""
+	var message = "%s: %s" % [event.title, event.description]
+	add_event(message, "warning")
+
+func _on_event_choice_made(event_data: EventData, choice: Dictionary):
+	"""Callback cuando se hace una elección en un evento"""
+	if event_manager and event_manager.has_method("complete_event"):
+		event_manager.complete_event(event_data, choice)
+
+func _on_event_dismissed(event_data: EventData):
+	"""Callback cuando se descarta un evento sin elección específica"""
+	if event_manager and event_manager.has_method("complete_event"):
+		event_manager.complete_event(event_data, {})
 
 func get_selected_unit() -> Node:
 	"""Retorna la unidad actualmente seleccionada"""

@@ -1,0 +1,138 @@
+[
+  {
+    "id": "epidemia_viruela",
+    "title": "Brote de Viruela",
+    "description": "Una epidemia de viruela se extiende por la región, afectando tanto a las tropas como a la población civil. Se necesitan medidas urgentes para contener el contagio.",
+    "event_type": 1,
+    "random_chance": 0.03,
+    "has_choices": true,
+    "choices": [
+      {
+        "text": "Establecer cuarentena estricta",
+        "effects": [
+          {"type": 0, "resource": "comida", "amount": -100},
+          {"type": 0, "resource": "moral", "amount": -5}
+        ]
+      },
+      {
+        "text": "Buscar curanderos locales",
+        "effects": [
+          {"type": 0, "resource": "dinero", "amount": -75},
+          {"type": 0, "resource": "moral", "amount": 5}
+        ]
+      },
+      {
+        "text": "Ignorar el problema",
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": -20}
+        ]
+      }
+    ],
+    "effects": [
+      {"type": 0, "resource": "moral", "amount": -10}
+    ],
+    "can_repeat": true,
+    "priority": 7,
+    "category": "social"
+  },
+  {
+    "id": "desercion_masiva",
+    "title": "Deserción Masiva",
+    "description": "Las duras condiciones de campaña y la falta de pago han llevado a un grupo significativo de soldados a abandonar sus filas durante la noche.",
+    "event_type": 1,
+    "random_chance": 0.04,
+    "has_choices": true,
+    "choices": [
+      {
+        "text": "Pagar soldadas atrasadas inmediatamente",
+        "effects": [
+          {"type": 0, "resource": "dinero", "amount": -200},
+          {"type": 0, "resource": "moral", "amount": 15}
+        ]
+      },
+      {
+        "text": "Perseguir a los desertores",
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": -15}
+        ]
+      },
+      {
+        "text": "Mejorar las condiciones de campaña",
+        "effects": [
+          {"type": 0, "resource": "comida", "amount": -100},
+          {"type": 0, "resource": "dinero", "amount": -50},
+          {"type": 0, "resource": "moral", "amount": 10}
+        ]
+      }
+    ],
+    "effects": [
+      {"type": 0, "resource": "moral", "amount": -15}
+    ],
+    "can_repeat": true,
+    "priority": 6,
+    "category": "militar"
+  },
+  {
+    "id": "comerciante_contrabandista",
+    "title": "Comerciante Contrabandista",
+    "description": "Un comerciante local se acerca ofreciendo suministros de contrabando a precios muy ventajosos, pero existe el riesgo de que sea una trampa de los realistas.",
+    "event_type": 1,
+    "random_chance": 0.06,
+    "has_choices": true,
+    "choices": [
+      {
+        "text": "Aceptar la oferta arriesgada",
+        "effects": [
+          {"type": 0, "resource": "dinero", "amount": -50},
+          {"type": 0, "resource": "municion", "amount": 150},
+          {"type": 0, "resource": "comida", "amount": 100}
+        ]
+      },
+      {
+        "text": "Rechazar por seguridad",
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": 5}
+        ]
+      },
+      {
+        "text": "Investigar antes de decidir",
+        "effects": [
+          {"type": 0, "resource": "dinero", "amount": -25},
+          {"type": 0, "resource": "municion", "amount": 75}
+        ]
+      }
+    ],
+    "can_repeat": true,
+    "priority": 4,
+    "category": "económico"
+  },
+  {
+    "id": "noticias_europa",
+    "title": "Noticias desde Europa",
+    "description": "Llegan noticias de los eventos en Europa que afectan la situación política. La caída de Napoleón y la restauración de Fernando VII cambian el panorama político.",
+    "event_type": 1,
+    "random_chance": 0.02,
+    "has_choices": true,
+    "choices": [
+      {
+        "text": "Usar las noticias para propaganda patriota",
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": 10},
+          {"type": 0, "resource": "dinero", "amount": -30}
+        ]
+      },
+      {
+        "text": "Mantener la información en secreto",
+        "effects": [
+          {"type": 0, "resource": "moral", "amount": -5}
+        ]
+      }
+    ],
+    "effects": [
+      {"type": 0, "resource": "moral", "amount": 5}
+    ],
+    "can_repeat": true,
+    "priority": 5,
+    "category": "político"
+  }
+]
