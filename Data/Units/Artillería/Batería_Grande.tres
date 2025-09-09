@@ -8,7 +8,28 @@ script = ExtResource("1_eh0iw")
 nombre = "Batería Grande"
 rama = "Artillería"
 nivel = 3
-"tamaño" = 120
+"tamaño" = 90
 fusionable = false
 icono = ExtResource("1_jn1ln")
+costos_reclutamiento = {
+"Pan": 300,
+"Carne": 150,
+"Cañones": 6,
+"Municion": 120,
+"Caballos": 12,
+"Vino": 9,
+"Aguardiente": 15,
+"Tabaco": 24,
+"Biblias": 3
+}
+costos_mantenimiento = {
+"Pan": 30,
+"Carne": 15,
+"Municion": 24,
+"Caballos": 3,
+"Tabaco": 6,
+"Vino": 3,
+"Aguardiente": 3,
+"Biblias": 0.6
+}
 metadata/_custom_type_script = "uid://dpjs0nus1ju16"

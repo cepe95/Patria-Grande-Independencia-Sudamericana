@@ -11,4 +11,25 @@ nivel = 2
 "tamaño" = 90
 fusionable = true
 icono = ExtResource("1_m8w20")
+costos_reclutamiento = {
+"Pan": 270,
+"Carne": 180,
+"Caballos": 90,
+"Sables": 9,
+"Municion": 15,
+"Vino": 9,
+"Aguardiente": 15,
+"Tabaco": 24,
+"Biblias": 2
+}
+costos_mantenimiento = {
+"Pan": 27,
+"Carne": 18,
+"Caballos": 9,
+"Municion": 6,
+"Tabaco": 6,
+"Vino": 3,
+"Aguardiente": 3,
+"Biblias": 0.4
+}
 metadata/_custom_type_script = "uid://dpjs0nus1ju16"
