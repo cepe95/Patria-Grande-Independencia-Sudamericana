@@ -144,17 +144,58 @@ func _on_solicitar_accion(div_instancia, tipo_accion: String):
 			# TODO: Modo de movimiento especial
 			print("🎯 Modo de movimiento para:", div_instancia.data.nombre)
 
-func validar_posicion_unidad(posicion: Vector2) -> bool:
+func validar_posicion_unidad(posicion: Vector2, unidad_movida: Node = null) -> bool:
 	"""Valida si una posición es válida para colocar una unidad"""
 	# Verificar límites del mapa
 	if not map_bounds.has_point(posicion):
 		return false
 	
-	# TODO: Verificar colisiones con otras unidades
+	# Verificar colisiones con otras unidades
+	if verificar_colision_unidades(posicion, unidad_movida):
+		return false
+	
 	# TODO: Verificar terreno válido
 	# TODO: Verificar zonas restringidas
 	
 	return true
+
+func verificar_colision_unidades(posicion: Vector2, unidad_ignorar: Node = null) -> bool:
+	"""Verifica si hay colisión con otras unidades en la posición dada"""
+	var distancia_minima = 80.0  # Distancia mínima entre unidades
+	
+	for child in units_container.get_children():
+		if child == unidad_ignorar:
+			continue
+		
+		var distancia = posicion.distance_to(child.global_position)
+		if distancia < distancia_minima:
+			return true
+	
+	return false
+
+func obtener_unidades_en_area(centro: Vector2, radio: float) -> Array:
+	"""Obtiene todas las unidades en un área circular"""
+	var unidades_en_area = []
+	
+	for child in units_container.get_children():
+		var distancia = centro.distance_to(child.global_position)
+		if distancia <= radio:
+			unidades_en_area.append(child)
+	
+	return unidades_en_area
+
+func obtener_unidad_mas_cercana(posicion: Vector2, max_distancia: float = 200.0) -> Node:
+	"""Obtiene la unidad más cercana a una posición"""
+	var unidad_cercana = null
+	var distancia_minima = max_distancia
+	
+	for child in units_container.get_children():
+		var distancia = posicion.distance_to(child.global_position)
+		if distancia < distancia_minima:
+			distancia_minima = distancia
+			unidad_cercana = child
+	
+	return unidad_cercana
 
 # ⬇️ Función para instanciar mapas
 func instance_map(info: Dictionary, _position: Vector2) -> Node2D:
