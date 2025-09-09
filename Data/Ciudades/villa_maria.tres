@@ -1,0 +1,15 @@
+[gd_resource type="CiudadResource" script_class="CiudadResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Data/CiudadResource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+nombre = "Villa María"
+tipo = "ciudad"
+poblacion = 35000
+pos_mapa = Vector2(450, 280)
+recursos_base = Array[String](["agricultura", "ganaderia", "comercio", "alimentos"])
+produccion_actual = {"agricultura": 80, "ganaderia": 60, "comercio": 40, "alimentos": 70}
+capacidad_reclutamiento = 150
+especiales = Array[String](["centro_agricola", "nudo_ferroviario"])
+ultimo_tick = 0

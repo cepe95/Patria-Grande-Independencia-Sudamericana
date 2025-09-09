@@ -1,0 +1,15 @@
+[gd_resource type="CiudadResource" script_class="CiudadResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Data/CiudadResource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+nombre = "Jesús María"
+tipo = "villa"
+poblacion = 20000
+pos_mapa = Vector2(600, 300)
+recursos_base = Array[String](["agricultura", "ganaderia", "alimentos"])
+produccion_actual = {"agricultura": 50, "ganaderia": 40, "alimentos": 45}
+capacidad_reclutamiento = 80
+especiales = Array[String](["festival_doma", "tradicion_gaucha"])
+ultimo_tick = 0

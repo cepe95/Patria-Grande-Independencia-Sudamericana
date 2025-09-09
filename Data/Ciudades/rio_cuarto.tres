@@ -1,0 +1,15 @@
+[gd_resource type="CiudadResource" script_class="CiudadResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Data/CiudadResource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+nombre = "Río Cuarto"
+tipo = "ciudad"
+poblacion = 45000
+pos_mapa = Vector2(380, 520)
+recursos_base = Array[String](["agricultura", "ganaderia", "industria", "comercio"])
+produccion_actual = {"agricultura": 90, "ganaderia": 70, "industria": 50, "comercio": 60}
+capacidad_reclutamiento = 180
+especiales = Array[String](["centro_agricola", "industria_alimentaria"])
+ultimo_tick = 0

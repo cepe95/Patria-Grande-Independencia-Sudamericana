@@ -1,0 +1,15 @@
+[gd_resource type="CiudadResource" script_class="CiudadResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Data/CiudadResource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+nombre = "Córdoba Capital"
+tipo = "capital"
+poblacion = 150000
+pos_mapa = Vector2(576, 400)
+recursos_base = Array[String](["alimentos", "manufactura", "comercio", "educacion", "administracion"])
+produccion_actual = {"alimentos": 50, "manufactura": 80, "comercio": 100, "educacion": 30, "administracion": 60}
+capacidad_reclutamiento = 500
+especiales = Array[String](["capital_provincial", "universidad", "centro_comercial"])
+ultimo_tick = 0

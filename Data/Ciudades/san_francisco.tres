@@ -1,0 +1,15 @@
+[gd_resource type="CiudadResource" script_class="CiudadResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Data/CiudadResource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+nombre = "San Francisco"
+tipo = "ciudad"
+poblacion = 25000
+pos_mapa = Vector2(680, 200)
+recursos_base = Array[String](["agricultura", "alimentos", "comercio"])
+produccion_actual = {"agricultura": 60, "alimentos": 50, "comercio": 30}
+capacidad_reclutamiento = 100
+especiales = Array[String](["centro_agricola"])
+ultimo_tick = 0
