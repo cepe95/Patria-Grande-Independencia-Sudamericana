@@ -18,8 +18,9 @@ func _ready():
 
 func _process(delta):
 	detectar_unidades_cercanas()
-	if town_data.estado == "controlado":
-		generar_recursos(delta)
+	# Generación de recursos movida al sistema de ticks
+	# if town_data.estado == "controlado":
+	# 	generar_recursos(delta)
 
 func detectar_unidades_cercanas():
 	var mapa := get_tree().current_scene
@@ -33,6 +34,40 @@ func detectar_unidades_cercanas():
 func generar_recursos(delta):
 	recursos_generados += delta * town_data.importancia
 	# Podés redondear o acumular según tu sistema de economía
+
+func generar_recursos_tick():
+	"""Genera recursos por tick y los agrega a la facción controladora"""
+	if town_data.estado != "controlado":
+		return
+		
+	# Determinar qué facción controla el pueblo (por simplicidad, asumiremos Patriota)
+	var faccion_controladora = FactionManager.obtener_faccion("Patriota")
+	if not faccion_controladora:
+		return
+	
+	# Generar recursos basados en la importancia del pueblo
+	var recursos_por_tick = town_data.importancia
+	
+	print("🏘️ %s genera recursos (importancia: %d)" % [town_data.nombre, town_data.importancia])
+	
+	# Agregar recursos básicos según el tipo de pueblo
+	match town_data.tipo:
+		"pueblo_pequeno":
+			faccion_controladora.recursos["pan"] += recursos_por_tick * 1
+			faccion_controladora.recursos["dinero"] += recursos_por_tick * 0.5
+		"ciudad_mediana":
+			faccion_controladora.recursos["pan"] += recursos_por_tick * 2
+			faccion_controladora.recursos["dinero"] += recursos_por_tick * 1
+			faccion_controladora.recursos["municion"] += recursos_por_tick * 0.5
+		"ciudad_grande":
+			faccion_controladora.recursos["pan"] += recursos_por_tick * 3
+			faccion_controladora.recursos["dinero"] += recursos_por_tick * 2
+			faccion_controladora.recursos["municion"] += recursos_por_tick * 1
+			faccion_controladora.recursos["polvora"] += recursos_por_tick * 0.5
+		_:
+			# Pueblo genérico
+			faccion_controladora.recursos["pan"] += recursos_por_tick * 1
+			faccion_controladora.recursos["dinero"] += recursos_por_tick * 0.5
 
 func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

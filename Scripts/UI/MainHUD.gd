@@ -35,9 +35,13 @@ var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
 
+# === SISTEMA DE TIEMPO REAL ===
+var resource_timer: Timer
+
 # === INICIALIZACIÓN ===
 func _ready():
 	print("✓ MainHUD inicializado")
+	setup_resource_timer()
 	setup_ui_connections()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
@@ -45,6 +49,15 @@ func _ready():
 	initialize_resource_display()
 	populate_city_unit_lists()
 	add_initial_events()
+
+func setup_resource_timer():
+	"""Configura el timer global para actualización de recursos"""
+	resource_timer = Timer.new()
+	resource_timer.wait_time = 1.0  # Cada 1 segundo
+	resource_timer.timeout.connect(_on_resource_tick)
+	add_child(resource_timer)
+	resource_timer.start()
+	print("✓ Timer de recursos iniciado (1 tick por segundo)")
 
 func setup_ui_connections():
 	"""Conecta las señales de los elementos de la UI"""
@@ -98,18 +111,123 @@ func _on_new_division_added(node: Node):
 # === MANEJO DE RECURSOS ===
 func initialize_resource_display():
 	"""Inicializa la visualización de recursos"""
-	current_resources = {
-		"dinero": 1000,
-		"comida": 500,
-		"municion": 200
-	}
+	# Conectar a los recursos reales de la facción del jugador (asumiendo Patriota)
+	var player_faction = FactionManager.obtener_faccion("Patriota")
+	if player_faction:
+		print("✓ Facción Patriota encontrada con recursos iniciales:")
+		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
+		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
+		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+	else:
+		print("⚠️ Facción Patriota no encontrada, usando valores por defecto")
+		# Fallback: crear la facción si no existe
+		var nueva_faccion = FactionData.new()
+		nueva_faccion.nombre = "Patriota"
+		nueva_faccion.recursos = {
+			"dinero": 1000,
+			"pan": 500,
+			"municion": 200
+		}
+		FactionManager.registrar_faccion("Patriota", nueva_faccion)
 	update_resource_display()
 
 func update_resource_display():
 	"""Actualiza la visualización de recursos en la barra superior"""
-	dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
-	comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
-	municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+	var player_faction = FactionManager.obtener_faccion("Patriota")
+	if player_faction:
+		current_resources = player_faction.recursos
+		dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
+		comida_label.text = "Comida: %d" % current_resources.get("pan", 0)  # Usar 'pan' como comida
+		municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+	else:
+		# Fallback a valores por defecto si no hay facción
+		dinero_label.text = "Dinero: 0"
+		comida_label.text = "Comida: 0"  
+		municion_label.text = "Munición: 0"
+
+func _on_resource_tick():
+	"""Callback ejecutado cada tick del timer de recursos"""
+	print("🔄 Tick de recursos ejecutado")
+	
+	# Actualizar producción de ciudades/pueblos
+	update_town_production()
+	
+	# Actualizar consumo de unidades  
+	update_unit_consumption()
+	
+	# Refrescar display de recursos
+	update_resource_display()
+	
+	# Debug: mostrar recursos actuales
+	var player_faction = FactionManager.obtener_faccion("Patriota")
+	if player_faction:
+		print("💰 Recursos actuales - Dinero: %d, Pan: %d, Munición: %d" % [
+			player_faction.recursos.get("dinero", 0),
+			player_faction.recursos.get("pan", 0), 
+			player_faction.recursos.get("municion", 0)
+		])
+
+func update_town_production():
+	"""Actualiza la producción de recursos de todos los pueblos controlados"""
+	if not strategic_map:
+		return
+		
+	# Buscar todos los pueblos en el mapa - probar diferentes ubicaciones
+	var towns_found = 0
+	
+	# Buscar en TownsContainer
+	var towns_container = strategic_map.get_node_or_null("TownsContainer")
+	if towns_container:
+		for child in towns_container.get_children():
+			if child.has_method("generar_recursos_tick"):
+				child.generar_recursos_tick()
+				towns_found += 1
+	else:
+		# Buscar directamente en strategic_map y sus hijos
+		for child in strategic_map.get_children():
+			if child.has_method("generar_recursos_tick"):
+				child.generar_recursos_tick()
+				towns_found += 1
+			# También buscar en contenedores hijos
+			elif child.get_child_count() > 0:
+				for grandchild in child.get_children():
+					if grandchild.has_method("generar_recursos_tick"):
+						grandchild.generar_recursos_tick()
+						towns_found += 1
+	
+	if towns_found == 0:
+		print("⚠️ No se encontraron pueblos para generar recursos")
+
+func update_unit_consumption():
+	"""Actualiza el consumo de recursos de todas las unidades"""
+	if not strategic_map:
+		return
+		
+	# Buscar todas las unidades en el mapa - probar diferentes ubicaciones
+	var units_found = 0
+	
+	# Buscar en UnitsContainer
+	var units_container = strategic_map.get_node_or_null("UnitsContainer")
+	if units_container:
+		for child in units_container.get_children():
+			if child.has_method("consumir_recursos_tick"):
+				child.consumir_recursos_tick()
+				units_found += 1
+	else:
+		# Buscar directamente en strategic_map y sus hijos
+		for child in strategic_map.get_children():
+			if child.has_method("consumir_recursos_tick"):
+				child.consumir_recursos_tick()
+				units_found += 1
+			# También buscar en contenedores hijos
+			elif child.get_child_count() > 0:
+				for grandchild in child.get_children():
+					if grandchild.has_method("consumir_recursos_tick"):
+						grandchild.consumir_recursos_tick()
+						units_found += 1
+	
+	if units_found == 0:
+		print("⚠️ No se encontraron unidades para consumir recursos")
 
 func update_date_turn_display(date_text: String = "", turn: int = -1):
 	"""Actualiza la visualización de fecha y turno"""
@@ -339,6 +457,9 @@ func add_initial_events():
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
 	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
+	add_event("🔄 Sistema de recursos en tiempo real activado", "success")
+	add_event("Los recursos se actualizan cada segundo automáticamente", "info")
+	add_event("Presiona T para probar el sistema de recursos", "info")
 
 # === SEÑALES Y CALLBACKS ===
 func _on_unit_selected(unit_node: Node):
@@ -425,6 +546,9 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_T:
+				# Tecla T para probar el sistema de recursos
+				test_resource_system()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -433,6 +557,30 @@ func refresh_interface():
 	populate_city_unit_lists()
 	connect_to_existing_divisions()
 	add_event("Interfaz actualizada", "info")
+
+func test_resource_system():
+	"""Método de prueba para validar el sistema de recursos"""
+	print("🧪 Ejecutando prueba del sistema de recursos...")
+	
+	# Mostrar estado inicial
+	var player_faction = FactionManager.obtener_faccion("Patriota")
+	if player_faction:
+		print("📊 Recursos iniciales:")
+		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
+		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
+		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+	
+	# Ejecutar un tick manual
+	_on_resource_tick()
+	
+	# Mostrar estado final
+	if player_faction:
+		print("📊 Recursos después del tick:")
+		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
+		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
+		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+	
+	print("🧪 Prueba completada")
 
 func get_selected_unit() -> Node:
 	"""Retorna la unidad actualmente seleccionada"""
