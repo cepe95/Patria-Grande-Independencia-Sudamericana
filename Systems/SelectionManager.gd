@@ -50,17 +50,31 @@ func select_units_in_rect(rect: Rect2, units_container: Node, add_to_selection: 
 	# Convert screen rectangle to world coordinates if camera is provided
 	var world_rect = rect
 	if camera:
-		var top_left_world = camera.get_screen_center_position() + (rect.position - camera.get_viewport().get_visible_rect().size / 2) / camera.zoom
-		var bottom_right_world = camera.get_screen_center_position() + (rect.position + rect.size - camera.get_viewport().get_visible_rect().size / 2) / camera.zoom
+		# Convert screen space rectangle to world space
+		var viewport = camera.get_viewport()
+		var screen_size = viewport.get_visible_rect().size
+		var camera_center = camera.global_position
+		
+		# Convert screen coordinates to world coordinates
+		var top_left_screen = rect.position
+		var bottom_right_screen = rect.position + rect.size
+		
+		# Transform screen coordinates to world coordinates
+		var top_left_world = camera_center + (top_left_screen - screen_size / 2) / camera.zoom
+		var bottom_right_world = camera_center + (bottom_right_screen - screen_size / 2) / camera.zoom
+		
 		world_rect = Rect2(top_left_world, bottom_right_world - top_left_world)
+		print("🔄 Converting selection rect from screen ", rect, " to world ", world_rect)
 	
+	var selected_count = 0
 	for unit in units_container.get_children():
 		if _is_unit_selectable(unit) and _is_unit_in_rect(unit, world_rect):
 			if not selected_units.has(unit):
 				selected_units.append(unit)
 				_apply_selection_visual(unit, true)
+				selected_count += 1
 	
-	print("📦 Selected ", selected_units.size(), " units in rectangle")
+	print("📦 Selected ", selected_count, " new units in rectangle (total: ", selected_units.size(), ")")
 	selection_changed.emit(selected_units.duplicate())
 
 # Clear all selections
@@ -107,6 +121,7 @@ func start_selection_rect(start_pos: Vector2) -> void:
 	is_drawing_selection_rect = true
 	selection_start_pos = start_pos
 	selection_rect = Rect2(start_pos, Vector2.ZERO)
+	print("🖱️ Started selection rectangle at: ", start_pos)
 
 # Update selection rectangle while dragging
 func update_selection_rect(current_pos: Vector2) -> void:
@@ -188,9 +203,16 @@ func _is_unit_selectable(unit: Node) -> bool:
 
 func _is_unit_in_rect(unit: Node, rect: Rect2) -> bool:
 	var unit_pos = unit.global_position if unit.has_method("get_global_position") else unit.position
-	return rect.has_point(unit_pos)
+	var unit_in_rect = rect.has_point(unit_pos)
+	
+	if unit_in_rect:
+		print("🎯 Unit at ", unit_pos, " is inside rect ", rect)
+	
+	return unit_in_rect
 
 func _move_unit_to(unit: Node, target_pos: Vector2) -> void:
+	print("🚶 Moving unit ", unit.name if unit.has_method("get_name") else "Unknown", " to ", target_pos)
+	
 	if unit.has_method("mover_a"):
 		unit.mover_a(target_pos)
 	elif unit.has_method("move_to"):
@@ -200,8 +222,10 @@ func _move_unit_to(unit: Node, target_pos: Vector2) -> void:
 		var tween = unit.create_tween() if unit.has_method("create_tween") else null
 		if tween:
 			tween.tween_property(unit, "position", target_pos, 1.0)
+			print("📍 Using tween for movement")
 		else:
 			unit.position = target_pos
+			print("📍 Direct position assignment")
 
 func _calculate_formation_positions(center: Vector2, unit_count: int, spacing: float) -> Array[Vector2]:
 	var positions: Array[Vector2] = []

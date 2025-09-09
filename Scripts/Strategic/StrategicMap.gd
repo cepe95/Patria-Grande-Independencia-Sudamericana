@@ -6,6 +6,7 @@ const DivisionInstance = preload("res://Scenes/Strategic/DivisionInstance.tscn")
 @onready var units_container = $UnitsContainer
 @onready var camera = $Camera2D
 @onready var date_label = $UIOverlay/DateLabel
+@onready var selection_label = $UIOverlay/SelectionLabel
 
 var zoom_min := 0.5
 var zoom_max := 2.0
@@ -75,6 +76,9 @@ func _ready():
 	game_clock.date_changed.connect(_on_game_clock_date_changed)
 	# Muestra la fecha inicial
 	date_label.text = game_clock.current_date.as_string()
+	
+	# Connect to selection manager signals
+	SelectionManager.selection_changed.connect(_on_selection_changed)
 
 func _create_test_units():
 	# Create some test units for the selection system
@@ -99,20 +103,44 @@ func _create_test_units():
 		
 		# Create a copy of the unit data with faction info
 		var copied_data = UnitData.new()
-		copied_data.nombre = unit_data.nombre
+		copied_data.nombre = unit_data.nombre + " #" + str(i + 1)
 		copied_data.rama = unit_data.rama
 		copied_data.nivel = unit_data.nivel
 		copied_data.tamaño = unit_data.tamaño
 		copied_data.icono = unit_data.icono
 		copied_data.cantidad = unit_data.cantidad
 		copied_data.faccion = "Patriota"  # Make sure they're selectable
+		copied_data.velocidad = 150.0  # Set movement speed
 		
 		unit_instance.set_data(copied_data)
 		unit_instance.position = positions[i]
+		unit_instance.name = "TestUnit_" + str(i)
 		units_container.add_child(unit_instance)
+		print("✅ Created test unit: ", copied_data.nombre, " at position: ", positions[i])
 
 func _on_game_clock_date_changed(new_date):
 	date_label.text = new_date.as_string()
+
+func _on_selection_changed(selected_units: Array):
+	var text = "Selection: "
+	if selected_units.is_empty():
+		text += "None"
+	else:
+		text += str(selected_units.size()) + " units"
+		if selected_units.size() <= 3:
+			text += " ("
+			for i in range(selected_units.size()):
+				var unit = selected_units[i]
+				var unit_name = "Unit"
+				if unit.has("data") and unit.data and unit.data.has("nombre"):
+					unit_name = unit.data.nombre
+				text += unit_name
+				if i < selected_units.size() - 1:
+					text += ", "
+			text += ")"
+	
+	text += "\nLeft-click: Select unit\nDrag: Select multiple\nShift+click: Add/remove\nRight-click: Move selected"
+	selection_label.text = text
 
 func set_division_seleccionada(nueva):
 	if division_seleccionada:

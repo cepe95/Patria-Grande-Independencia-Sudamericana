@@ -25,6 +25,19 @@ text = "Fechita Rabiosa"
 justification_flags = 131
 max_lines_visible = 16
 
+[node name="SelectionLabel" type="Label" parent="UIOverlay"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 300.0
+offset_bottom = 100.0
+text = "Selection: None
+Left-click: Select unit
+Drag: Select multiple
+Shift+click: Add/remove
+Right-click: Move selected"
+horizontal_alignment = 0
+vertical_alignment = 0
+
 [node name="SelectionRectangle" type="Control" parent="UIOverlay"]
 layout_mode = 3
 anchors_preset = 15

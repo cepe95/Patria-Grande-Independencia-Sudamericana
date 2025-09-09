@@ -85,12 +85,14 @@ func descomponer() -> void:
 func _process(delta: float) -> void:
 	if en_movimiento:
 		var distancia := position.distance_to(destino)
-		if distancia > 1:
+		if distancia > 5:  # Changed from 1 to 5 for better movement
 			var direccion := (destino - position).normalized()
-			position += direccion * data.velocidad * delta
+			var speed = data.velocidad if data and data.velocidad > 0 else 100.0
+			position += direccion * speed * delta
 		else:
 			position = destino
 			en_movimiento = false
+			print("✅ Unit reached destination: ", position)
 
 # Improved area detection for selection
 func obtener_area_visual() -> Rect2:
