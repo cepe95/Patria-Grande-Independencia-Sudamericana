@@ -34,5 +34,13 @@ class_name FactionData
 
 	# Estado estratégico
 	"moral": 100,
-	"prestigio": 0
+	"prestigio": 0,
+	
+	# Investigación
+	"investigacion": 0  # Puntos de investigación acumulados
 }
+
+# Tecnologías
+@export var tecnologias_completadas: Array[String] = []
+@export var investigacion_actual: String = ""  # ID de tecnología en investigación
+@export var puntos_investigacion_base: int = 10  # Puntos por turno base

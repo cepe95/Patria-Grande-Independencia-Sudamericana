@@ -10,6 +10,7 @@ extends Control
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
+@onready var technology_panel: Panel = $UI/TechnologyPanel
 
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
@@ -34,10 +35,12 @@ var selected_unit: Node = null
 var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
+var technology_manager: TechnologyManager
 
 # === INICIALIZACIÓN ===
 func _ready():
 	print("✓ MainHUD inicializado")
+	setup_technology_system()
 	setup_ui_connections()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
@@ -57,6 +60,18 @@ func setup_ui_connections():
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
+
+func setup_technology_system():
+	"""Configura el sistema de tecnologías"""
+	# Usar el gestor global de tecnologías
+	technology_manager = TechnologyManager
+	
+	# Configurar el panel de tecnologías si existe
+	if technology_panel:
+		technology_panel.set_technology_manager(technology_manager)
+		technology_panel.technology_selected.connect(_on_technology_selected)
+		technology_panel.research_started.connect(_on_research_started)
+		technology_manager.technology_completed.connect(_on_technology_completed)
 
 func setup_strategic_map_connections():
 	"""Conecta las señales del mapa estratégico"""
@@ -101,7 +116,8 @@ func initialize_resource_display():
 	current_resources = {
 		"dinero": 1000,
 		"comida": 500,
-		"municion": 200
+		"municion": 200,
+		"investigacion": 0
 	}
 	update_resource_display()
 
@@ -110,6 +126,11 @@ func update_resource_display():
 	dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
 	comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
 	municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+	
+	# Actualizar puntos de investigación si el sistema está disponible
+	if technology_manager:
+		var research_points = technology_manager.get_research_points_per_turn("Patriota")
+		current_resources["investigacion"] = research_points
 
 func update_date_turn_display(date_text: String = "", turn: int = -1):
 	"""Actualiza la visualización de fecha y turno"""
@@ -401,6 +422,10 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
+	# Procesar investigación tecnológica
+	if technology_manager:
+		technology_manager.process_turn("Patriota")  # Por ahora usar facción fija
+	
 	# TODO: Aquí se procesarían los eventos del turno
 	print("✓ Avanzando al turno: ", current_turn)
 
@@ -421,10 +446,14 @@ func _unhandled_input(event):
 			KEY_ESCAPE:
 				if details_panel.visible:
 					hide_details()
+				elif technology_panel and technology_panel.visible:
+					technology_panel.hide_panel()
 				else:
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_T:
+				show_technology_tree()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -478,9 +507,13 @@ func show_diplomacy_panel():
 	add_event("Panel de diplomacia solicitado", "info")
 
 func show_technology_tree():
-	"""PLACEHOLDER: Mostrar árbol de tecnologías"""
-	print("TODO: Implementar árbol de tecnologías")
-	add_event("Investigación tecnológica solicitada", "info")
+	"""Muestra el árbol de tecnologías"""
+	if technology_panel and technology_manager:
+		technology_panel.set_current_faction("Patriota")  # Por ahora usar facción fija
+		technology_panel.show_panel()
+		add_event("Árbol tecnológico abierto", "info")
+	else:
+		add_event("Sistema de tecnologías no disponible", "error")
 
 func save_game():
 	"""PLACEHOLDER: Guardar partida"""
@@ -491,3 +524,34 @@ func load_game():
 	"""PLACEHOLDER: Cargar partida"""
 	print("TODO: Implementar sistema de carga")
 	add_event("Partida cargada", "success")
+
+# === CALLBACKS DEL SISTEMA DE TECNOLOGÍAS ===
+
+func _on_technology_selected(technology: TechnologyData):
+	"""Callback cuando se selecciona una tecnología"""
+	print("✓ Tecnología seleccionada: ", technology.nombre)
+
+func _on_research_started(technology_id: String):
+	"""Callback cuando se inicia una investigación"""
+	var tech = technology_manager.get_technology_by_id(technology_id)
+	if tech:
+		add_event("Investigación iniciada: " + tech.nombre, "info")
+		print("✓ Investigación iniciada: ", tech.nombre)
+
+func _on_technology_completed(technology: TechnologyData):
+	"""Callback cuando se completa una investigación"""
+	add_event("¡Investigación completada: " + technology.nombre + "!", "success")
+	print("✓ Investigación completada: ", technology.nombre)
+	
+	# Mostrar efectos en el panel de eventos
+	var effects_text = "Efectos obtenidos:"
+	for bonus in technology.bonificaciones:
+		effects_text += " +" + str(technology.bonificaciones[bonus]) + " " + bonus
+	
+	if technology.unidades_desbloqueadas.size() > 0:
+		effects_text += " | Unidades: " + ", ".join(technology.unidades_desbloqueadas)
+	
+	if technology.edificios_desbloqueados.size() > 0:
+		effects_text += " | Edificios: " + ", ".join(technology.edificios_desbloqueados)
+	
+	add_event(effects_text, "success")

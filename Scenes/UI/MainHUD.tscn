@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bf8jjcjx6a5xh"]
+[gd_scene load_steps=5 format=3 uid="uid://bf8jjcjx6a5xh"]
 
 [ext_resource type="Script" path="res://Scripts/UI/MainHUD.gd" id="1_main_hud"]
 [ext_resource type="PackedScene" uid="uid://de53dq1ddujpm" path="res://Scenes/Strategic/StrategicMap.tscn" id="2_strategic_map"]
 [ext_resource type="PackedScene" uid="uid://bjhqqwxvf8qwm" path="res://Scenes/UI/PauseMenu.tscn" id="3_pause_menu"]
+[ext_resource type="PackedScene" uid="uid://bjpixm5qp8o5x" path="res://Scenes/UI/TechnologyPanel.tscn" id="4_technology_panel"]
 
 [node name="MainHUD" type="Control"]
 layout_mode = 3
@@ -247,4 +248,7 @@ layout_mode = 2
 text = "Pausar"
 
 [node name="PauseMenu" parent="UI" instance=ExtResource("3_pause_menu")]
+visible = false
+
+[node name="TechnologyPanel" parent="UI" instance=ExtResource("4_technology_panel")]
 visible = false

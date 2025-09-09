@@ -1,0 +1,90 @@
+[gd_scene load_steps=2 format=3 uid="uid://bjpixm5qp8o5x"]
+
+[ext_resource type="Script" path="res://Scripts/UI/TechnologyPanel.gd" id="1_0b8h3"]
+
+[node name="TechnologyPanel" type="Panel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 200.0
+offset_top = 100.0
+offset_right = -200.0
+offset_bottom = -100.0
+script = ExtResource("1_0b8h3")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="HeaderContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/HeaderContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Árbol Tecnológico"
+horizontal_alignment = 1
+
+[node name="ResourcesLabel" type="Label" parent="VBoxContainer/HeaderContainer"]
+layout_mode = 2
+text = "Investigación: 0/turno"
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/HeaderContainer"]
+layout_mode = 2
+text = "✕"
+
+[node name="TreeContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TreeScroll" type="ScrollContainer" parent="VBoxContainer/TreeContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_bar_policy = 1
+vertical_scroll_bar_policy = 1
+
+[node name="TreeGrid" type="Control" parent="VBoxContainer/TreeContainer/TreeScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DetailsContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="TechNameLabel" type="Label" parent="VBoxContainer/DetailsContainer"]
+layout_mode = 2
+text = "Selecciona una tecnología"
+horizontal_alignment = 1
+
+[node name="TechDescriptionLabel" type="Label" parent="VBoxContainer/DetailsContainer"]
+layout_mode = 2
+text = "Los detalles de la tecnología aparecerán aquí"
+autowrap_mode = 2
+
+[node name="TechCostLabel" type="Label" parent="VBoxContainer/DetailsContainer"]
+layout_mode = 2
+text = ""
+
+[node name="ProgressContainer" type="HBoxContainer" parent="VBoxContainer/DetailsContainer"]
+layout_mode = 2
+
+[node name="TechProgressBar" type="ProgressBar" parent="VBoxContainer/DetailsContainer/ProgressContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+
+[node name="TechProgressLabel" type="Label" parent="VBoxContainer/DetailsContainer/ProgressContainer"]
+layout_mode = 2
+text = "0/100 (0%)"
+
+[node name="ResearchButton" type="Button" parent="VBoxContainer/DetailsContainer"]
+layout_mode = 2
+text = "Iniciar Investigación"
