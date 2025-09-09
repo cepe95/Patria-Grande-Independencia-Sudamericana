@@ -19,13 +19,47 @@ var divisiones_en_pueblo: Array = []
 func set_data(data: TownData):
 	town_data = data
 	name = town_data.nombre
+	# Actualizar visual si ya existe
+	actualizar_visual()
+
+func actualizar_visual():
+	"""Actualiza la etiqueta visual del pueblo"""
+	var label = get_node_or_null("Label")
+	if label and town_data:
+		label.text = town_data.nombre
 
 func _ready():
 	connect("input_event", _on_input_event)
+	crear_visual_pueblo()
 	crear_panel_flotante()
 	set_process(true)
 	# Agregar al grupo "towns" para detección por el sistema de reclutamiento
 	add_to_group("towns")
+
+func crear_visual_pueblo():
+	"""Crea la representación visual del pueblo"""
+	# Crear un sprite simple o ColorRect para visualizar el pueblo
+	var visual = ColorRect.new()
+	visual.size = Vector2(40, 40)
+	visual.position = Vector2(-20, -20)  # Centrar
+	visual.color = Color(0.8, 0.6, 0.2, 0.8)  # Color dorado/marrón
+	add_child(visual)
+	
+	# Agregar CollisionShape2D para detección de clicks
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(40, 40)
+	collision.shape = shape
+	add_child(collision)
+	
+	# Etiqueta con el nombre del pueblo
+	var label = Label.new()
+	label.name = "Label"
+	label.text = town_data.nombre if town_data else "Pueblo"
+	label.position = Vector2(-30, -50)
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color.BLACK)
+	add_child(label)
 
 func _process(delta):
 	detectar_unidades_cercanas()
@@ -107,6 +141,7 @@ func actualizar_panel():
 				", ".join(town_data.oficiales_disponibles),
 				town_data.comentario
 			]
+
 func obtener_unidades_reclutables() -> Array:
 	"""Retorna las unidades que se pueden reclutar en este pueblo"""
 	var unidades_disponibles: Array = []

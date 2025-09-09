@@ -268,6 +268,9 @@ func show_details(title: String, content_data: Dictionary):
 	for child in details_content.get_children():
 		child.queue_free()
 	
+	# Resetear botón de reclutamiento
+	boton_reclutar = null
+	
 	# Agregar nuevo contenido
 	for key in content_data:
 		var info_line = HBoxContainer.new()
@@ -286,6 +289,11 @@ func show_details(title: String, content_data: Dictionary):
 		info_line.add_child(key_label)
 		info_line.add_child(value_label)
 		details_content.add_child(info_line)
+	
+	# Recrear botón de reclutamiento si es necesario
+	if selected_unit:
+		crear_boton_reclutamiento()
+		verificar_reclutamiento_division(selected_unit)
 	
 	details_panel.visible = true
 

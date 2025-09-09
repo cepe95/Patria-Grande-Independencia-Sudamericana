@@ -155,6 +155,19 @@ func _unhandled_input(event):
 			if division_seleccionada:
 				print("❌ Deseleccionando división:", division_seleccionada.data.nombre)
 			set_division_seleccionada(null)
+	
+	# Movimiento de división con click derecho
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		if division_seleccionada:
+			var destino = event.position
+			# Convertir la posición de pantalla a posición del mundo
+			var mundo_pos = camera.get_global_mouse_position()
+			print("🚶 Moviendo división", division_seleccionada.data.nombre, "a", mundo_pos)
+			division_seleccionada.mover_a(mundo_pos)
+			# Notificar al MainHUD
+			var main_hud = get_node("../")
+			if main_hud and main_hud.has_method("add_event"):
+				main_hud.add_event("División " + division_seleccionada.data.nombre + " moviéndose", "info")
 
 	# Zoom
 	if event is InputEventMouseButton:
@@ -221,9 +234,10 @@ func crear_pueblos_prueba():
 	
 	var pueblo1 = TownInstance.instantiate()
 	pueblo1.position = Vector2(-100, -300)  # Cerca de la división patriota
+	add_child(pueblo1)
 	pueblo1.set_data(pueblo1_data)
 	pueblo1.configurar_por_tipo()
-	add_child(pueblo1)
+	pueblo1.actualizar_visual()
 	
 	# Ciudad mediana cerca de la división realista
 	var pueblo2_data = TownData.new()
@@ -234,9 +248,10 @@ func crear_pueblos_prueba():
 	
 	var pueblo2 = TownInstance.instantiate()
 	pueblo2.position = Vector2(250, 300)  # Cerca de la división realista
+	add_child(pueblo2)
 	pueblo2.set_data(pueblo2_data)
 	pueblo2.configurar_por_tipo()
-	add_child(pueblo2)
+	pueblo2.actualizar_visual()
 	
 	# Capital en el centro del mapa
 	var capital_data = TownData.new()
@@ -247,9 +262,10 @@ func crear_pueblos_prueba():
 	
 	var capital = TownInstance.instantiate()
 	capital.position = Vector2(0, 0)  # Centro del mapa
+	add_child(capital)
 	capital.set_data(capital_data)
 	capital.configurar_por_tipo()
-	add_child(capital)
+	capital.actualizar_visual()
 
 func conectar_señales_pueblos():
 	"""Conecta las señales de todos los pueblos en el mapa para reclutamiento"""
