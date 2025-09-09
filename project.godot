@@ -21,6 +21,7 @@ UnitUtils="*res://Scripts/Strategic/UnitUtils.gd"
 DivisionAssembler="*res://Scripts/Strategic/DivisionAssembler.gd"
 FactionManager="*res://Systems/FactionManager.gd"
 EconomicManager="*res://Systems/EconomicManager.gd"
+EconomicIntegrationManager="*res://Systems/EconomicIntegrationManager.gd"
 
 [display]
 
