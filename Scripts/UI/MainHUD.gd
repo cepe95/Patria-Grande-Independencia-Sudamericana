@@ -10,6 +10,7 @@ extends Control
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
+@onready var diplomacy_panel: Panel = $UI/DiplomacyPanel
 
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
@@ -28,6 +29,7 @@ extends Control
 @onready var events_log: VBoxContainer = $UI/EventPanel/VBoxContainer/EventsContainer/EventsList/EventsLog
 @onready var next_turn_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/NextTurnButton
 @onready var pause_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/PauseButton
+@onready var diplomacy_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/DiplomacyButton
 
 # === VARIABLES DE ESTADO ===
 var selected_unit: Node = null
@@ -39,12 +41,23 @@ var current_turn: int = 1
 func _ready():
 	print("✓ MainHUD inicializado")
 	setup_ui_connections()
+	setup_diplomacy_connections()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
 	setup_strategic_map_connections()
 	initialize_resource_display()
 	populate_city_unit_lists()
 	add_initial_events()
+
+func setup_diplomacy_connections():
+	"""Conecta las señales del sistema de diplomacia"""
+	if DiplomacyManager:
+		DiplomacyManager.diplomatic_status_changed.connect(_on_diplomatic_status_changed)
+		DiplomacyManager.diplomatic_proposal_received.connect(_on_diplomatic_proposal_received)
+		DiplomacyManager.diplomatic_event_occurred.connect(_on_diplomatic_event_occurred)
+	
+	if diplomacy_panel:
+		diplomacy_panel.proposal_sent.connect(_on_diplomatic_proposal_sent)
 
 func setup_ui_connections():
 	"""Conecta las señales de los elementos de la UI"""
@@ -54,6 +67,7 @@ func setup_ui_connections():
 	# Botones de acciones rápidas
 	next_turn_button.pressed.connect(_on_next_turn_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
+	diplomacy_button.pressed.connect(_on_diplomacy_button_pressed)
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
@@ -401,13 +415,21 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Procesar eventos diplomáticos del turno
+	if DiplomacyManager:
+		DiplomacyManager.process_turn_events()
+	
+	# TODO: Aquí se procesarían otros eventos del turno
 	print("✓ Avanzando al turno: ", current_turn)
 
 func _on_pause_pressed():
 	"""Callback para pausar el juego"""
 	pause_menu.visible = true
 	add_event("Juego pausado", "info")
+
+func _on_diplomacy_button_pressed():
+	"""Callback para mostrar el panel de diplomacia"""
+	show_diplomacy_panel()
 
 func _on_date_changed(new_date):
 	"""Callback cuando cambia la fecha en el GameClock"""
@@ -421,10 +443,15 @@ func _unhandled_input(event):
 			KEY_ESCAPE:
 				if details_panel.visible:
 					hide_details()
+				elif diplomacy_panel.visible:
+					diplomacy_panel.hide()
 				else:
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_D:
+				if event.ctrl_pressed:
+					show_diplomacy_panel()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -473,9 +500,13 @@ func manage_city_production(city_name: String, resource_type: String):
 	add_event("Producción ajustada en " + city_name, "info")
 
 func show_diplomacy_panel():
-	"""PLACEHOLDER: Mostrar panel de diplomacia"""
-	print("TODO: Implementar panel de diplomacia")
-	add_event("Panel de diplomacia solicitado", "info")
+	"""Mostrar panel de diplomacia"""
+	if diplomacy_panel:
+		diplomacy_panel.show_diplomacy()
+		add_event("Panel de diplomacia abierto", "info")
+	else:
+		print("⚠ Panel de diplomacia no disponible")
+		add_event("Panel de diplomacia no disponible", "warning")
 
 func show_technology_tree():
 	"""PLACEHOLDER: Mostrar árbol de tecnologías"""
@@ -491,3 +522,46 @@ func load_game():
 	"""PLACEHOLDER: Cargar partida"""
 	print("TODO: Implementar sistema de carga")
 	add_event("Partida cargada", "success")
+
+# === MANEJO DE EVENTOS DIPLOMÁTICOS ===
+
+func _on_diplomatic_status_changed(faction_a: String, faction_b: String, new_status: int):
+	"""Callback cuando cambia el estado diplomático entre facciones"""
+	var status_name = ""
+	match new_status:
+		0: status_name = "Desconocido"
+		1: status_name = "Hostil"
+		2: status_name = "Poco Amistoso"
+		3: status_name = "Neutral"
+		4: status_name = "Amistoso"
+		5: status_name = "Aliado"
+		6: status_name = "Vasallo"
+		7: status_name = "Guerra"
+		_: status_name = "Indefinido"
+	
+	var message = "Relación entre %s y %s cambió a: %s" % [faction_a, faction_b, status_name]
+	var event_type = "warning" if new_status == 7 else ("success" if new_status > 3 else "info")
+	add_event(message, event_type)
+	
+	# Actualizar el panel de diplomacia si está visible
+	if diplomacy_panel and diplomacy_panel.visible:
+		diplomacy_panel.update_display()
+
+func _on_diplomatic_proposal_received(from_faction: String, to_faction: String, proposal_type: String, details: Dictionary):
+	"""Callback cuando se recibe una propuesta diplomática"""
+	var proposal_name = proposal_type.capitalize().replace("_", " ")
+	var message = "%s propone %s a %s" % [from_faction, proposal_name, to_faction]
+	add_event(message, "info")
+	
+	# Si es al jugador, mostrar notificación especial
+	if to_faction == "Patriota":
+		add_event("Nueva propuesta diplomática de %s: %s" % [from_faction, proposal_name], "warning")
+
+func _on_diplomatic_event_occurred(event_type: String, description: String, factions_involved: Array):
+	"""Callback cuando ocurre un evento diplomático"""
+	add_event("Evento diplomático: " + description, "info")
+
+func _on_diplomatic_proposal_sent(from_faction: String, to_faction: String, proposal_type: String):
+	"""Callback cuando el jugador envía una propuesta diplomática"""
+	var proposal_name = proposal_type.capitalize().replace("_", " ")
+	add_event("Propuesta enviada a %s: %s" % [to_faction, proposal_name], "info")

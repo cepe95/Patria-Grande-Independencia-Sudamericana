@@ -36,3 +36,13 @@ class_name FactionData
 	"moral": 100,
 	"prestigio": 0
 }
+
+# Nuevo: Estado diplomático
+@export var diplomatic_personality: String = "normal"  # peaceful, normal, aggressive, warmonger
+@export var known_factions: Array[String] = []
+@export var diplomatic_modifiers: Dictionary = {
+	"aggression": 0.3,
+	"trade_preference": 0.5,
+	"alliance_preference": 0.5,
+	"independence_support": 0.5
+}

@@ -1,0 +1,234 @@
+{
+	"random_events": [
+		{
+			"name": "border_skirmish",
+			"description": "Escaramuza fronteriza entre {faction_a} y {faction_b} genera tensiones",
+			"probability": 0.05,
+			"opinion_change": -15,
+			"status_requirements": ["NEUTRAL", "UNFRIENDLY"],
+			"prerequisites": {
+				"min_turn": 5,
+				"exclude_player": false
+			}
+		},
+		{
+			"name": "trade_dispute",
+			"description": "Disputa comercial afecta las relaciones entre {faction_a} y {faction_b}",
+			"probability": 0.03,
+			"opinion_change": -10,
+			"status_requirements": ["NEUTRAL", "FRIENDLY"],
+			"prerequisites": {
+				"requires_trade_agreement": true
+			}
+		},
+		{
+			"name": "cultural_exchange",
+			"description": "Intercambio cultural mejora las relaciones entre {faction_a} y {faction_b}",
+			"probability": 0.04,
+			"opinion_change": 10,
+			"status_requirements": ["NEUTRAL", "FRIENDLY"]
+		},
+		{
+			"name": "military_incident",
+			"description": "Incidente militar en la frontera entre {faction_a} y {faction_b}",
+			"probability": 0.02,
+			"opinion_change": -20,
+			"status_requirements": ["UNFRIENDLY", "HOSTILE"],
+			"effects": {
+				"may_trigger_war": true,
+				"war_probability": 0.3
+			}
+		},
+		{
+			"name": "diplomatic_meeting",
+			"description": "Reunión diplomática exitosa entre {faction_a} y {faction_b}",
+			"probability": 0.06,
+			"opinion_change": 15,
+			"status_requirements": ["NEUTRAL", "FRIENDLY", "ALLIED"],
+			"prerequisites": {
+				"min_opinion": -30
+			}
+		},
+		{
+			"name": "resource_cooperation",
+			"description": "Cooperación en recursos beneficia a {faction_a} y {faction_b}",
+			"probability": 0.03,
+			"opinion_change": 12,
+			"status_requirements": ["FRIENDLY", "ALLIED"],
+			"effects": {
+				"resource_bonus": {
+					"dinero": 100,
+					"comida": 50
+				}
+			}
+		},
+		{
+			"name": "independence_support",
+			"description": "{faction_a} ofrece apoyo a los movimientos independentistas de {faction_b}",
+			"probability": 0.025,
+			"opinion_change": 25,
+			"status_requirements": ["NEUTRAL", "FRIENDLY"],
+			"prerequisites": {
+				"faction_ideology_match": ["Republicanismo"]
+			}
+		},
+		{
+			"name": "colonial_pressure",
+			"description": "Presión colonial afecta las relaciones entre {faction_a} y {faction_b}",
+			"probability": 0.03,
+			"opinion_change": -18,
+			"status_requirements": ["NEUTRAL", "UNFRIENDLY"],
+			"prerequisites": {
+				"faction_ideology_conflict": ["Monarquismo", "Republicanismo"]
+			}
+		}
+	],
+	"proposal_types": {
+		"alliance": {
+			"name": "Propuesta de Alianza",
+			"description": "Formar una alianza militar y política para apoyo mutuo",
+			"requirements": ["can_propose_alliance"],
+			"base_success_probability": 0.6,
+			"opinion_modifiers": {
+				"min_opinion": 20,
+				"opinion_bonus_per_10": 0.1
+			},
+			"effects": {
+				"military_access": true,
+				"shared_vision": true,
+				"mutual_defense": true
+			},
+			"ai_consideration_factors": {
+				"opinion_weight": 0.4,
+				"threat_level": 0.3,
+				"strategic_value": 0.3
+			}
+		},
+		"trade_agreement": {
+			"name": "Acuerdo Comercial",
+			"description": "Establecer un acuerdo de comercio mutuamente beneficioso",
+			"requirements": ["can_propose_trade"],
+			"base_success_probability": 0.7,
+			"opinion_modifiers": {
+				"min_opinion": 0,
+				"opinion_bonus_per_10": 0.05
+			},
+			"effects": {
+				"trade_bonus": 1.2,
+				"resource_sharing": true
+			},
+			"resource_costs": {
+				"dinero": 50
+			}
+		},
+		"war_declaration": {
+			"name": "Declaración de Guerra",
+			"description": "Declarar guerra formal y comenzar hostilidades",
+			"requirements": ["can_declare_war"],
+			"base_success_probability": 1.0,
+			"effects": {
+				"immediate_war": true,
+				"opinion_penalty": -50
+			},
+			"consequences": {
+				"breaks_all_treaties": true,
+				"affects_other_relations": true
+			}
+		},
+		"peace_treaty": {
+			"name": "Tratado de Paz",
+			"description": "Establecer la paz y cesar todas las hostilidades",
+			"requirements": ["status_is_war"],
+			"base_success_probability": 0.5,
+			"opinion_modifiers": {
+				"war_exhaustion_bonus": 0.2
+			},
+			"effects": {
+				"end_war": true,
+				"opinion_improvement": 20
+			}
+		},
+		"non_aggression_pact": {
+			"name": "Pacto de No Agresión",
+			"description": "Acuerdo para no atacarse mutuamente",
+			"requirements": ["status_neutral_or_better"],
+			"base_success_probability": 0.8,
+			"duration_turns": 20,
+			"effects": {
+				"prevents_war_declaration": true,
+				"small_opinion_bonus": 5
+			}
+		},
+		"military_access": {
+			"name": "Acceso Militar",
+			"description": "Permiso para mover tropas por territorio aliado",
+			"requirements": ["status_friendly_or_allied"],
+			"base_success_probability": 0.6,
+			"effects": {
+				"military_access": true
+			}
+		}
+	},
+	"opinion_modifiers": {
+		"base_decay_per_turn": 1,
+		"war_opinion_penalty": -50,
+		"alliance_opinion_bonus": 30,
+		"trade_opinion_bonus": 15,
+		"broken_treaty_penalty": -40,
+		"faction_ideology_bonus": {
+			"same_ideology": 10,
+			"opposing_ideology": -20
+		},
+		"territorial_proximity": {
+			"neighboring": -5,
+			"distant": 5
+		}
+	},
+	"ai_behavior": {
+		"aggression_levels": {
+			"peaceful": 0.1,
+			"normal": 0.3,
+			"aggressive": 0.6,
+			"warmonger": 0.9
+		},
+		"faction_personalities": {
+			"Patriota": {
+				"aggression": "normal",
+				"trade_preference": 0.7,
+				"alliance_preference": 0.8,
+				"independence_support": 0.9
+			},
+			"Realista": {
+				"aggression": "aggressive",
+				"trade_preference": 0.4,
+				"alliance_preference": 0.3,
+				"colonial_maintenance": 0.9
+			}
+		},
+		"decision_intervals": {
+			"evaluate_proposals": 1,
+			"consider_new_proposals": 3,
+			"reassess_relations": 5
+		}
+	},
+	"localization": {
+		"relation_status_names": {
+			"UNKNOWN": "Desconocido",
+			"HOSTILE": "Hostil",
+			"UNFRIENDLY": "Poco Amistoso",
+			"NEUTRAL": "Neutral",
+			"FRIENDLY": "Amistoso",
+			"ALLIED": "Aliado",
+			"VASSAL": "Vasallo",
+			"WAR": "Guerra"
+		},
+		"proposal_names": {
+			"alliance": "Alianza",
+			"trade_agreement": "Acuerdo Comercial",
+			"war_declaration": "Declaración de Guerra",
+			"peace_treaty": "Tratado de Paz",
+			"non_aggression_pact": "Pacto de No Agresión",
+			"military_access": "Acceso Militar"
+		}
+	}
+}
