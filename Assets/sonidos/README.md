@@ -1,0 +1,1 @@
+Carpeta para almacenar todos los archivos de sonido (efectos, música, diálogos, etc.) del proyecto. Puedes agregar aquí archivos con extensión .wav, .ogg, .mp3, etc.
