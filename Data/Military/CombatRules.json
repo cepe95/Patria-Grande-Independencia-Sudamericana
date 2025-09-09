@@ -1,0 +1,81 @@
+{
+  "combat_rules": {
+    "terrain_modifiers": {
+      "mountain": {
+        "infantry": 1.2,
+        "cavalry": 0.6,
+        "artillery": 0.8
+      },
+      "plain": {
+        "infantry": 1.0,
+        "cavalry": 1.3,
+        "artillery": 1.1
+      },
+      "forest": {
+        "infantry": 1.1,
+        "cavalry": 0.7,
+        "artillery": 0.6
+      },
+      "river": {
+        "infantry": 0.8,
+        "cavalry": 0.5,
+        "artillery": 0.9
+      },
+      "city": {
+        "infantry": 1.3,
+        "cavalry": 0.8,
+        "artillery": 1.2
+      }
+    },
+    "unit_effectiveness": {
+      "infantry_vs_infantry": 1.0,
+      "infantry_vs_cavalry": 0.7,
+      "infantry_vs_artillery": 1.2,
+      "cavalry_vs_infantry": 1.3,
+      "cavalry_vs_cavalry": 1.0,
+      "cavalry_vs_artillery": 1.5,
+      "artillery_vs_infantry": 1.4,
+      "artillery_vs_cavalry": 1.1,
+      "artillery_vs_artillery": 1.0
+    },
+    "moral_effects": {
+      "high_moral": 1.2,
+      "normal_moral": 1.0,
+      "low_moral": 0.7,
+      "broken_moral": 0.3
+    },
+    "experience_bonus": {
+      "veteran": 1.3,
+      "experienced": 1.1,
+      "regular": 1.0,
+      "green": 0.8
+    }
+  },
+  "battle_outcomes": {
+    "decisive_victory": {
+      "attacker_losses": [0.05, 0.15],
+      "defender_losses": [0.4, 0.7],
+      "moral_change": {"winner": 15, "loser": -25}
+    },
+    "victory": {
+      "attacker_losses": [0.1, 0.25],
+      "defender_losses": [0.25, 0.5],
+      "moral_change": {"winner": 10, "loser": -15}
+    },
+    "pyrrhic_victory": {
+      "attacker_losses": [0.3, 0.5],
+      "defender_losses": [0.4, 0.6],
+      "moral_change": {"winner": 5, "loser": -10}
+    },
+    "draw": {
+      "attacker_losses": [0.2, 0.4],
+      "defender_losses": [0.2, 0.4],
+      "moral_change": {"winner": 0, "loser": -5}
+    },
+    "defeat": {
+      "attacker_losses": [0.4, 0.7],
+      "defender_losses": [0.1, 0.3],
+      "moral_change": {"winner": 10, "loser": -20}
+    }
+  }
+}

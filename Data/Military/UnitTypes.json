@@ -1,0 +1,116 @@
+{
+  "infantry_units": {
+    "peloton": {
+      "name": "Pelotón",
+      "size": 50,
+      "branch": "infanteria",
+      "level": 1,
+      "recruitment_cost": {
+        "dinero": 100,
+        "municion": 10,
+        "mosquetes": 25
+      },
+      "recruitment_time": 1,
+      "effectiveness": 40,
+      "consumption": {
+        "pan": 0.5,
+        "carne": 0.2,
+        "municion": 0.15
+      }
+    },
+    "compania": {
+      "name": "Compañía",
+      "size": 150,
+      "branch": "infanteria",
+      "level": 2,
+      "recruitment_cost": {
+        "dinero": 300,
+        "municion": 30,
+        "mosquetes": 75
+      },
+      "recruitment_time": 2,
+      "effectiveness": 60,
+      "consumption": {
+        "pan": 1.5,
+        "carne": 0.6,
+        "municion": 0.45
+      }
+    },
+    "batallon": {
+      "name": "Batallón",
+      "size": 500,
+      "branch": "infanteria",
+      "level": 3,
+      "recruitment_cost": {
+        "dinero": 1000,
+        "municion": 100,
+        "mosquetes": 250
+      },
+      "recruitment_time": 3,
+      "effectiveness": 75,
+      "consumption": {
+        "pan": 5.0,
+        "carne": 2.0,
+        "municion": 1.5
+      }
+    }
+  },
+  "cavalry_units": {
+    "escuadron": {
+      "name": "Escuadrón",
+      "size": 30,
+      "branch": "caballeria",
+      "level": 1,
+      "recruitment_cost": {
+        "dinero": 200,
+        "caballos": 30,
+        "sables": 30
+      },
+      "recruitment_time": 2,
+      "effectiveness": 65,
+      "consumption": {
+        "verdura": 0.3,
+        "caballos": 0.01,
+        "carne": 0.15
+      }
+    },
+    "regimiento": {
+      "name": "Regimiento",
+      "size": 120,
+      "branch": "caballeria",
+      "level": 2,
+      "recruitment_cost": {
+        "dinero": 800,
+        "caballos": 120,
+        "sables": 120
+      },
+      "recruitment_time": 3,
+      "effectiveness": 80,
+      "consumption": {
+        "verdura": 1.2,
+        "caballos": 0.04,
+        "carne": 0.6
+      }
+    }
+  },
+  "artillery_units": {
+    "bateria": {
+      "name": "Batería",
+      "size": 40,
+      "branch": "artilleria",
+      "level": 1,
+      "recruitment_cost": {
+        "dinero": 500,
+        "cañones": 4,
+        "polvora": 20
+      },
+      "recruitment_time": 4,
+      "effectiveness": 85,
+      "consumption": {
+        "polvora": 0.5,
+        "municion": 0.3,
+        "pan": 0.4
+      }
+    }
+  }
+}

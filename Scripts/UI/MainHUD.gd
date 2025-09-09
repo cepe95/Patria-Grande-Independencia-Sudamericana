@@ -9,6 +9,7 @@ extends Control
 @onready var city_unit_list_panel: Panel = $UI/CityUnitListPanel
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
+@onready var military_panel: Panel = $UI/MilitaryPanel
 @onready var pause_menu: Control = $UI/PauseMenu
 
 # Referencias a elementos específicos de los paneles
@@ -34,6 +35,7 @@ var selected_unit: Node = null
 var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
+var military_panel_visible: bool = false
 
 # === INICIALIZACIÓN ===
 func _ready():
@@ -45,6 +47,7 @@ func _ready():
 	initialize_resource_display()
 	populate_city_unit_lists()
 	add_initial_events()
+	setup_military_panel()
 
 func setup_ui_connections():
 	"""Conecta las señales de los elementos de la UI"""
@@ -425,6 +428,8 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_M:  # Tecla M para alternar panel militar
+				toggle_military_panel()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -458,14 +463,38 @@ func move_unit_to_position(unit: Node, target_position: Vector2):
 	add_event("Movimiento de unidad ordenado", "info")
 
 func start_battle(attacking_unit: Node, defending_unit: Node):
-	"""PLACEHOLDER: Iniciar batalla entre unidades"""
-	print("TODO: Implementar sistema de batalla")
-	add_event("¡Batalla iniciada!", "warning")
+	"""Iniciar batalla entre unidades usando el MilitaryManager"""
+	if MilitaryManager and attacking_unit and defending_unit:
+		var attacker_data = attacking_unit.get("data")
+		var defender_data = defending_unit.get("data")
+		
+		if attacker_data and defender_data:
+			var location = attacker_data.get("ubicacion", "Campo de batalla")
+			var result = MilitaryManager.initiate_battle(attacker_data, defender_data, location)
+			
+			add_event("Batalla en %s: %s vs %s" % [location, attacker_data.nombre, defender_data.nombre], "warning")
+			
+			if military_panel and military_panel.has_method("refresh_battles"):
+				military_panel.refresh_battles()
+		else:
+			add_event("Error: Datos de unidades inválidos para batalla", "error")
+	else:
+		print("MilitaryManager o unidades no disponibles")
+		add_event("Error: No se puede iniciar batalla", "error")
 
 func recruit_unit_in_city(city_name: String, unit_type: String):
-	"""PLACEHOLDER: Reclutar unidad en ciudad"""
-	print("TODO: Implementar reclutamiento de unidades")
-	add_event("Reclutamiento ordenado en " + city_name, "info")
+	"""Reclutar unidad en ciudad usando el MilitaryManager"""
+	if MilitaryManager:
+		var success = MilitaryManager.recruit_unit(unit_type, city_name, "Patriota")
+		if success:
+			add_event("Reclutamiento iniciado: %s en %s" % [unit_type, city_name], "success")
+			if military_panel and military_panel.has_method("refresh_recruitment_queue"):
+				military_panel.refresh_recruitment_queue()
+		else:
+			add_event("No se puede reclutar: recursos insuficientes", "error")
+	else:
+		print("MilitaryManager no disponible")
+		add_event("Error: Sistema militar no disponible", "error")
 
 func manage_city_production(city_name: String, resource_type: String):
 	"""PLACEHOLDER: Gestionar producción de ciudad"""

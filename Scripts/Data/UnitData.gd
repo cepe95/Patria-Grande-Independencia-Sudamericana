@@ -30,3 +30,12 @@ class_name UnitData
 	"Mosquetes": 0.01,
 	"Sables": 0.01
 }
+
+# Campos militares adicionales
+@export var efectividad_combate: int = 50  # Efectividad en combate (0-100)
+@export var costo_reclutamiento: Dictionary = {
+	"dinero": 100,
+	"municion": 10,
+	"mosquetes": 5
+}
+@export var tiempo_reclutamiento: int = 1  # Turnos necesarios para reclutar
