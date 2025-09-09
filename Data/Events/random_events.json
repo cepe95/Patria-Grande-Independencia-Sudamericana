@@ -1,10 +1,24 @@
 [
   {
+    "id": "test_event_simple",
+    "title": "Evento de Prueba Simple",
+    "description": "Este es un evento de prueba sin opciones para verificar que el sistema funciona correctamente.",
+    "event_type": 1,
+    "random_chance": 1.0,
+    "has_choices": false,
+    "effects": [
+      {"type": 0, "resource": "dinero", "amount": 50}
+    ],
+    "can_repeat": true,
+    "priority": 1,
+    "category": "prueba"
+  },
+  {
     "id": "epidemia_viruela",
     "title": "Brote de Viruela",
     "description": "Una epidemia de viruela se extiende por la región, afectando tanto a las tropas como a la población civil. Se necesitan medidas urgentes para contener el contagio.",
     "event_type": 1,
-    "random_chance": 0.03,
+    "random_chance": 0.08,
     "has_choices": true,
     "choices": [
       {
@@ -36,48 +50,11 @@
     "category": "social"
   },
   {
-    "id": "desercion_masiva",
-    "title": "Deserción Masiva",
-    "description": "Las duras condiciones de campaña y la falta de pago han llevado a un grupo significativo de soldados a abandonar sus filas durante la noche.",
-    "event_type": 1,
-    "random_chance": 0.04,
-    "has_choices": true,
-    "choices": [
-      {
-        "text": "Pagar soldadas atrasadas inmediatamente",
-        "effects": [
-          {"type": 0, "resource": "dinero", "amount": -200},
-          {"type": 0, "resource": "moral", "amount": 15}
-        ]
-      },
-      {
-        "text": "Perseguir a los desertores",
-        "effects": [
-          {"type": 0, "resource": "moral", "amount": -15}
-        ]
-      },
-      {
-        "text": "Mejorar las condiciones de campaña",
-        "effects": [
-          {"type": 0, "resource": "comida", "amount": -100},
-          {"type": 0, "resource": "dinero", "amount": -50},
-          {"type": 0, "resource": "moral", "amount": 10}
-        ]
-      }
-    ],
-    "effects": [
-      {"type": 0, "resource": "moral", "amount": -15}
-    ],
-    "can_repeat": true,
-    "priority": 6,
-    "category": "militar"
-  },
-  {
     "id": "comerciante_contrabandista",
     "title": "Comerciante Contrabandista",
     "description": "Un comerciante local se acerca ofreciendo suministros de contrabando a precios muy ventajosos, pero existe el riesgo de que sea una trampa de los realistas.",
     "event_type": 1,
-    "random_chance": 0.06,
+    "random_chance": 0.10,
     "has_choices": true,
     "choices": [
       {
@@ -105,34 +82,5 @@
     "can_repeat": true,
     "priority": 4,
     "category": "económico"
-  },
-  {
-    "id": "noticias_europa",
-    "title": "Noticias desde Europa",
-    "description": "Llegan noticias de los eventos en Europa que afectan la situación política. La caída de Napoleón y la restauración de Fernando VII cambian el panorama político.",
-    "event_type": 1,
-    "random_chance": 0.02,
-    "has_choices": true,
-    "choices": [
-      {
-        "text": "Usar las noticias para propaganda patriota",
-        "effects": [
-          {"type": 0, "resource": "moral", "amount": 10},
-          {"type": 0, "resource": "dinero", "amount": -30}
-        ]
-      },
-      {
-        "text": "Mantener la información en secreto",
-        "effects": [
-          {"type": 0, "resource": "moral", "amount": -5}
-        ]
-      }
-    ],
-    "effects": [
-      {"type": 0, "resource": "moral", "amount": 5}
-    ],
-    "can_repeat": true,
-    "priority": 5,
-    "category": "político"
   }
 ]

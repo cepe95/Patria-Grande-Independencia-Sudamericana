@@ -23,13 +23,19 @@ func _ready():
 	# Inicialmente oculto
 	visible = false
 	
+	# Esperar un frame para que los nodos estén listos
+	await get_tree().process_frame
+	
 	# Conectar señales
-	close_button.pressed.connect(_on_close_pressed)
-	continue_button.pressed.connect(_on_continue_pressed)
+	if close_button:
+		close_button.pressed.connect(_on_close_pressed)
+	if continue_button:
+		continue_button.pressed.connect(_on_continue_pressed)
 	
 	# Configurar fondo semi-transparente
-	background.color = Color(0, 0, 0, 0.7)
-	background.mouse_filter = Control.MOUSE_FILTER_STOP  # Bloquear input detrás del modal
+	if background:
+		background.color = Color(0, 0, 0, 0.7)
+		background.mouse_filter = Control.MOUSE_FILTER_STOP  # Bloquear input detrás del modal
 	
 	print("✓ EventModal inicializado")
 

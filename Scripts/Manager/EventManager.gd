@@ -65,7 +65,7 @@ func load_events_from_files():
 	
 	# Verificar si existe el directorio
 	if not DirAccess.dir_exists_absolute(events_dir):
-		print("⚠ Directorio de eventos no existe, creando eventos de ejemplo")
+		print("⚠ Directorio de eventos no existe: %s" % events_dir)
 		create_sample_events()
 		return
 	
@@ -73,13 +73,19 @@ func load_events_from_files():
 	if dir:
 		dir.list_dir_begin()
 		var file_name = dir.get_next()
+		var files_found = 0
 		
 		while file_name != "":
 			if file_name.ends_with(".json"):
 				load_event_file(events_dir + file_name)
+				files_found += 1
 			file_name = dir.get_next()
 		
-		print("✓ Cargados %d eventos desde archivos" % loaded_events.size())
+		if files_found == 0:
+			print("⚠ No se encontraron archivos JSON de eventos")
+			create_sample_events()
+		else:
+			print("✓ Cargados %d eventos desde %d archivos" % [loaded_events.size(), files_found])
 	else:
 		print("⚠ Error al abrir directorio de eventos")
 		create_sample_events()
@@ -121,28 +127,17 @@ func create_event_from_dict(event_dict: Dictionary):
 
 func create_sample_events():
 	"""Crea eventos de ejemplo para demostración"""
-	# Evento histórico: Grito de Dolores
-	var grito_dolores = EventData.new()
-	grito_dolores.id = "grito_dolores"
-	grito_dolores.title = "El Grito de Dolores"
-	grito_dolores.description = "El 16 de septiembre de 1810, Miguel Hidalgo lanza el grito que marca el inicio formal de la independencia mexicana. Este evento inspira a los movimientos independentistas de toda América."
-	grito_dolores.event_type = EventData.EventType.HISTORICAL
-	grito_dolores.trigger_date = "1810/09/16"
-	grito_dolores.category = "político"
-	grito_dolores.add_resource_effect("moral", 10)
-	grito_dolores.add_resource_effect("dinero", 50)
-	
-	# Evento histórico: Cruce de los Andes
-	var cruce_andes = EventData.new()
-	cruce_andes.id = "cruce_andes"
-	cruce_andes.title = "El Cruce de los Andes"
-	cruce_andes.description = "San Martín realiza la épica travesía de los Andes con el Ejército de los Andes, una maniobra militar que cambiaría el curso de la independencia sudamericana."
-	cruce_andes.event_type = EventData.EventType.HISTORICAL
-	cruce_andes.trigger_date = "1817/01/15"
-	cruce_andes.category = "militar"
-	cruce_andes.add_resource_effect("moral", 15)
-	cruce_andes.add_choice("Apoyar la expedición con recursos", [{"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "dinero", "amount": -100}, {"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "moral", "amount": 20}])
-	cruce_andes.add_choice("Mantener recursos para otras operaciones", [{"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "moral", "amount": 5}])
+	# Evento histórico: Revolución de Mayo  
+	var revolucion_mayo = EventData.new()
+	revolucion_mayo.id = "revolucion_mayo"
+	revolucion_mayo.title = "Revolución de Mayo"
+	revolucion_mayo.description = "El 25 de mayo de 1810 marca el inicio del proceso revolucionario en el Río de la Plata. Se forma la Primera Junta de Gobierno, dando el primer paso hacia la independencia."
+	revolucion_mayo.event_type = EventData.EventType.HISTORICAL
+	revolucion_mayo.trigger_date = "1810/05/25"
+	revolucion_mayo.category = "político"
+	revolucion_mayo.add_resource_effect("moral", 10)
+	revolucion_mayo.add_choice("Apoyar la revolución", [{"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "dinero", "amount": -100}, {"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "moral", "amount": 20}])
+	revolucion_mayo.add_choice("Mantener cautela", [{"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "moral", "amount": 5}])
 	
 	# Evento aleatorio: Motín de tropas
 	var motin_tropas = EventData.new()
@@ -150,7 +145,7 @@ func create_sample_events():
 	motin_tropas.title = "Motín en las Tropas"
 	motin_tropas.description = "La falta de pago y las duras condiciones han provocado descontento entre las tropas. Algunos soldados amenazan con abandonar sus puestos."
 	motin_tropas.event_type = EventData.EventType.RANDOM
-	motin_tropas.random_chance = 0.05  # 5% de chance por turno
+	motin_tropas.random_chance = 0.15  # Mayor probabilidad para testing
 	motin_tropas.category = "militar"
 	motin_tropas.add_choice("Pagar soldadas atrasadas", [{"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "dinero", "amount": -150}, {"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "moral", "amount": 15}])
 	motin_tropas.add_choice("Imponer disciplina militar", [{"type": EventData.EffectType.RESOURCE_CHANGE, "resource": "moral", "amount": -10}])
@@ -162,12 +157,23 @@ func create_sample_events():
 	buena_cosecha.title = "Excelente Cosecha"
 	buena_cosecha.description = "Las condiciones climáticas han sido favorables este año, resultando en una cosecha abundante que beneficia a toda la región."
 	buena_cosecha.event_type = EventData.EventType.RANDOM
-	buena_cosecha.random_chance = 0.08  # 8% de chance por turno
+	buena_cosecha.random_chance = 0.12  # 12% de chance por turno para testing
 	buena_cosecha.category = "económico"
 	buena_cosecha.add_resource_effect("comida", 200)
 	buena_cosecha.add_resource_effect("dinero", 100)
 	
-	loaded_events = [grito_dolores, cruce_andes, motin_tropas, buena_cosecha]
+	# Evento histórico simple sin opciones
+	var independencia_chile = EventData.new()
+	independencia_chile.id = "independencia_chile"
+	independencia_chile.title = "Independencia de Chile"
+	independencia_chile.description = "Chile declara su independencia, fortaleciendo el movimiento independentista en toda Sudamérica."
+	independencia_chile.event_type = EventData.EventType.HISTORICAL
+	independencia_chile.trigger_date = "1818/02/12"
+	independencia_chile.category = "político"
+	independencia_chile.add_resource_effect("moral", 15)
+	independencia_chile.add_resource_effect("dinero", 100)
+	
+	loaded_events = [revolucion_mayo, motin_tropas, buena_cosecha, independencia_chile]
 	print("✓ Creados %d eventos de ejemplo" % loaded_events.size())
 
 func check_events_for_turn(turn: int, date: Date = null):

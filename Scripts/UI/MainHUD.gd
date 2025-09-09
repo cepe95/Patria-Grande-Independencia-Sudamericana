@@ -145,6 +145,7 @@ func update_resource_display():
 	dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
 	comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
 	municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+	# Moral se muestra en el log de eventos por ahora
 
 func get_current_resources() -> Dictionary:
 	"""Retorna los recursos actuales - usado por EventManager"""
@@ -393,6 +394,7 @@ func add_initial_events():
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
 	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
+	add_event("Presiona E para probar el sistema de eventos", "info")
 
 # === SEÑALES Y CALLBACKS ===
 func _on_unit_selected(unit_node: Node):
@@ -488,6 +490,9 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_E:
+				# Tecla de prueba para eventos (solo durante desarrollo)
+				test_event_system()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -521,6 +526,18 @@ func _on_event_dismissed(event_data: EventData):
 	"""Callback cuando se descarta un evento sin elección específica"""
 	if event_manager and event_manager.has_method("complete_event"):
 		event_manager.complete_event(event_data, {})
+
+func test_event_system():
+	"""Función de prueba para el sistema de eventos (desarrollo)"""
+	if event_manager and event_manager.has_method("force_trigger_event"):
+		# Intentar disparar un evento de ejemplo
+		var success = event_manager.force_trigger_event("motin_tropas")
+		if success:
+			add_event("Evento de prueba disparado", "warning")
+		else:
+			add_event("No se pudo disparar evento de prueba", "error")
+	else:
+		add_event("EventManager no disponible para prueba", "error")
 
 func get_selected_unit() -> Node:
 	"""Retorna la unidad actualmente seleccionada"""

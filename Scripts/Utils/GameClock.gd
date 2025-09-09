@@ -13,6 +13,7 @@ var running := false
 var _elapsed := 0.0
 
 func _ready():
+	add_to_group("game_clock")  # Agregar a grupo para fácil identificación
 	start_date = Date.new(1816, 1, 1)
 	end_date = Date.new(1818, 1, 1)
 	current_date = start_date.copy()
