@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reclutamiento Contextual - Patria Grande</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .visualization {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .visualization img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        .feature h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .success {
+            background-color: #d5edda;
+            border-color: #28a745;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .success h2 {
+            color: #155724;
+            margin-top: 0;
+        }
+        .instructions {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        ul {
+            color: #495057;
+        }
+        .badge {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ Sistema de Reclutamiento Contextual<br><span class="badge">Patria Grande: Independencia Sudamericana</span></h1>
+        
+        <div class="success">
+            <h2>✅ Implementación Completada</h2>
+            <p><strong>El sistema de reclutamiento contextual ha sido implementado exitosamente</strong> con todas las funcionalidades requeridas. Las divisiones ahora pueden reclutar unidades solo cuando están ubicadas exactamente en pueblos del mapa estratégico.</p>
+        </div>
+
+        <div class="visualization">
+            <h2>📋 Visualización del Sistema</h2>
+            <img src="recruitment_system_visualization.png" alt="Visualización del Sistema de Reclutamiento" />
+            <p><em>Diagrama mostrando el funcionamiento del sistema de reclutamiento contextual</em></p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>🎯 Detección de Posición</h3>
+                <ul>
+                    <li>Rango de reclutamiento: 50 unidades</li>
+                    <li>Detección automática en tiempo real</li>
+                    <li>Señales para comunicación entre componentes</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>🎮 Interfaz Dinámica</h3>
+                <ul>
+                    <li>Botón "Reclutar" aparece solo cuando es posible</li>
+                    <li>Se integra con el DetailsPanel existente</li>
+                    <li>Menú emergente para selección de unidades</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>🏘️ Tipos de Pueblo</h3>
+                <ul>
+                    <li><strong>Villas:</strong> Solo Pelotón de Infantería</li>
+                    <li><strong>Ciudades Medianas:</strong> Pelotón + Compañía</li>
+                    <li><strong>Ciudades Grandes:</strong> + Batallón + Caballería</li>
+                    <li><strong>Capitales:</strong> Todas las unidades</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>⚙️ Mecánicas Implementadas</h3>
+                <ul>
+                    <li>Adición automática a divisiones</li>
+                    <li>Actualización de estadísticas</li>
+                    <li>Valores iniciales de moral y experiencia</li>
+                    <li>Log de eventos integrado</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🕹️ Instrucciones de Uso</h3>
+            <ol>
+                <li><strong>Seleccionar División:</strong> Click izquierdo en una división</li>
+                <li><strong>Mover División:</strong> Click derecho en el destino deseado</li>
+                <li><strong>Acercarse a Pueblo:</strong> Mueve la división cerca de un pueblo</li>
+                <li><strong>Reclutar:</strong> Click en el botón "Reclutar en [Pueblo]" que aparece</li>
+                <li><strong>Seleccionar Unidad:</strong> Elige la unidad deseada en el menú emergente</li>
+                <li><strong>Confirmar:</strong> La unidad se agrega automáticamente a la división</li>
+            </ol>
+        </div>
+
+        <div class="feature">
+            <h3>🔧 Archivos Modificados</h3>
+            <ul>
+                <li><strong>TownInstance.gd:</strong> Detección y señalización</li>
+                <li><strong>StrategicMap.gd:</strong> Gestión de señales y pueblos de prueba</li>
+                <li><strong>MainHUD.gd:</strong> Interfaz de reclutamiento</li>
+                <li><strong>UnitData.gd:</strong> Campos de moral y experiencia</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h2>🧪 Testing</h2>
+            <p>Se incluye un script de prueba automático (<code>test_recruitment_system.py</code>) que verifica:</p>
+            <ul>
+                <li>Existencia de todos los archivos necesarios</li>
+                <li>Implementación de funciones requeridas</li>
+                <li>Definición de señales</li>
+                <li>Uso correcto de grupos de nodos</li>
+                <li>Campos de datos actualizados</li>
+            </ul>
+            <p><strong>✅ Todas las pruebas pasan exitosamente</strong></p>
+        </div>
+
+        <div class="instructions">
+            <h3>📚 Documentación</h3>
+            <p>Consulta <code>RECRUITMENT_SYSTEM.md</code> para:</p>
+            <ul>
+                <li>Documentación técnica completa</li>
+                <li>Detalles de implementación</li>
+                <li>Instrucciones de expansión</li>
+                <li>Posibles mejoras futuras</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
