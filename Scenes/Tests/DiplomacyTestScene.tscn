@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6kp8vj8g5cxr"]
+
+[ext_resource type="Script" path="res://Scripts/Tests/DiplomacyTest.gd" id="1_diplomacy_test"]
+
+[node name="DiplomacyTestScene" type="Node"]
+script = ExtResource("1_diplomacy_test")
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
+text = "Ejecutando pruebas del sistema de diplomacia...
+Revisa la consola para ver los resultados."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

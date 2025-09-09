@@ -247,6 +247,10 @@ text = "Siguiente Turno"
 layout_mode = 2
 text = "Diplomacia"
 
+[node name="ReportButton" type="Button" parent="UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons"]
+layout_mode = 2
+text = "Reporte Diplomático"
+
 [node name="PauseButton" type="Button" parent="UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons"]
 layout_mode = 2
 text = "Pausar"

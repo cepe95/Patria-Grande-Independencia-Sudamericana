@@ -29,6 +29,7 @@ extends Control
 @onready var events_log: VBoxContainer = $UI/EventPanel/VBoxContainer/EventsContainer/EventsList/EventsLog
 @onready var next_turn_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/NextTurnButton
 @onready var diplomacy_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/DiplomacyButton
+@onready var report_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/ReportButton
 @onready var pause_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/PauseButton
 
 # === VARIABLES DE ESTADO ===
@@ -47,6 +48,7 @@ func _ready():
 	initialize_resource_display()
 	populate_city_unit_lists()
 	add_initial_events()
+	initialize_diplomacy_demo()
 
 func setup_ui_connections():
 	"""Conecta las señales de los elementos de la UI"""
@@ -56,6 +58,7 @@ func setup_ui_connections():
 	# Botones de acciones rápidas
 	next_turn_button.pressed.connect(_on_next_turn_pressed)
 	diplomacy_button.pressed.connect(_on_diplomacy_button_pressed)
+	report_button.pressed.connect(_on_report_button_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
 	
 	# Conectar señales del panel de diplomacia
@@ -409,7 +412,11 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Procesar eventos diplomáticos automáticos
+	if DiplomacyManager:
+		DiplomacyManager.process_turn_events()
+	
+	# TODO: Aquí se procesarían otros eventos del turno
 	print("✓ Avanzando al turno: ", current_turn)
 
 func _on_pause_pressed():
@@ -507,6 +514,10 @@ func _on_diplomacy_button_pressed():
 	"""Callback cuando se presiona el botón de diplomacia"""
 	show_diplomacy_panel()
 
+func _on_report_button_pressed():
+	"""Callback cuando se presiona el botón de reporte diplomático"""
+	show_diplomatic_report()
+
 func _on_diplomacy_panel_closed():
 	"""Callback cuando se cierra el panel de diplomacia"""
 	add_event("Panel de diplomacia cerrado", "info")
@@ -525,3 +536,30 @@ func _on_diplomatic_action_performed(action: String, target_faction: String):
 		event_type = "success"
 	
 	add_event(message, event_type)
+
+func show_diplomatic_report():
+	"""Muestra un reporte diplomático en el panel de detalles"""
+	if DiplomacyManager:
+		var player_faction = "Patriota"  # TODO: Hacer esto configurable
+		var report = DiplomacyManager.generate_diplomatic_report(player_faction)
+		
+		# Crear un diccionario con líneas separadas para mejor visualización
+		var lines = report.split("\n")
+		var report_dict = {}
+		for i in range(lines.size()):
+			if lines[i].strip() != "":
+				report_dict["Línea %d" % (i + 1)] = lines[i]
+		
+		# Mostrar el reporte en el panel de detalles
+		show_details("Reporte Diplomático", report_dict)
+
+func initialize_diplomacy_demo():
+	"""Inicializa algunos datos de demostración para el sistema de diplomacia"""
+	if DiplomacyManager:
+		# Esperar a que DiplomacyManager esté completamente inicializado
+		await get_tree().process_frame
+		
+		# Agregar algunas relaciones de ejemplo para demostración
+		# Esto se puede eliminar cuando el juego tenga datos persistentes
+		add_event("Sistema de diplomacia inicializado", "info")
+		print("✓ Sistema de diplomacia inicializado con datos de demostración")
