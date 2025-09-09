@@ -39,6 +39,8 @@ var current_turn: int = 1
 func _ready():
 	print("✓ MainHUD inicializado")
 	setup_ui_connections()
+	# Esperar un frame para que el StrategicMap esté completamente inicializado
+	await get_tree().process_frame
 	setup_strategic_map_connections()
 	initialize_resource_display()
 	populate_city_unit_lists()
@@ -59,17 +61,39 @@ func setup_ui_connections():
 func setup_strategic_map_connections():
 	"""Conecta las señales del mapa estratégico"""
 	if strategic_map:
-		# Conectar señal de selección de división si existe
-		var divisions = strategic_map.get_node_or_null("UnitsContainer")
-		if divisions:
-			for child in divisions.get_children():
-				if child.has_signal("division_seleccionada"):
-					child.division_seleccionada.connect(_on_unit_selected)
-		
 		# Conectar señal de cambio de fecha del GameClock
 		var game_clock = strategic_map.get_node_or_null("GameClock")
 		if game_clock and game_clock.has_signal("date_changed"):
 			game_clock.date_changed.connect(_on_date_changed)
+		
+		# Conectar a las divisiones existentes y futuras
+		connect_to_existing_divisions()
+		
+		# Conectar a nuevas divisiones que se agreguen
+		var units_container = strategic_map.get_node_or_null("UnitsContainer")
+		if units_container:
+			units_container.child_entered_tree.connect(_on_new_division_added)
+
+func connect_to_existing_divisions():
+	"""Conecta las señales de las divisiones existentes"""
+	if not strategic_map:
+		return
+		
+	var units_container = strategic_map.get_node_or_null("UnitsContainer")
+	if units_container:
+		for child in units_container.get_children():
+			if child.has_signal("division_seleccionada"):
+				if not child.division_seleccionada.is_connected(_on_unit_selected):
+					child.division_seleccionada.connect(_on_unit_selected)
+					print("✓ Conectado a división: ", child.get("data").get("nombre", "Desconocida") if child.get("data") else "Sin datos")
+
+func _on_new_division_added(node: Node):
+	"""Callback cuando se agrega una nueva división al mapa"""
+	if node.has_signal("division_seleccionada"):
+		node.division_seleccionada.connect(_on_unit_selected)
+		print("✓ Nueva división conectada: ", node.get("data").get("nombre", "Desconocida") if node.get("data") else "Sin datos")
+		# Actualizar la lista de unidades
+		call_deferred("populate_units_list")
 
 # === MANEJO DE RECURSOS ===
 func initialize_resource_display():
@@ -131,6 +155,31 @@ func populate_units_list():
 			for unit in units_container.get_children():
 				if unit.has_method("get_button_data") or unit.get("data"):
 					add_unit_to_list(unit)
+			print("✓ Lista de unidades poblada con %d unidades" % units_container.get_child_count())
+		else:
+			print("⚠ No se encontró UnitsContainer en StrategicMap")
+			# Agregar unidades de ejemplo si no hay mapa
+			add_example_units()
+	else:
+		print("⚠ StrategicMap no disponible, agregando unidades de ejemplo")
+		add_example_units()
+
+func add_example_units():
+	"""Agrega unidades de ejemplo cuando el mapa estratégico no está disponible"""
+	var example_units = [
+		{"nombre": "División Patriota Ejemplo", "faccion": "Patriota", "tipo": "División"},
+		{"nombre": "División Realista Ejemplo", "faccion": "Realista", "tipo": "División"}
+	]
+	
+	for unit_data in example_units:
+		var unit_entry = create_list_entry(
+			unit_data.get("nombre", "Unidad Desconocida"),
+			unit_data.get("tipo", "División"),
+			unit_data.get("faccion", "Neutral"),
+			"unit",
+			null  # Sin nodo de referencia para ejemplos
+		)
+		units_list.add_child(unit_entry)
 
 func add_city_to_list(city_data: Dictionary):
 	"""Agrega una ciudad a la lista"""
@@ -286,9 +335,10 @@ func add_event(message: String, event_type: String = "info"):
 
 func add_initial_events():
 	"""Agrega eventos iniciales de ejemplo"""
-	add_event("¡Bienvenido a Patria Grande!", "success")
+	add_event("¡Bienvenido a Patria Grande: Independencia Sudamericana!", "success")
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
+	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
 
 # === SEÑALES Y CALLBACKS ===
 func _on_unit_selected(unit_node: Node):
@@ -316,8 +366,20 @@ func _on_list_entry_selected(entry_type: String, name: String, reference_node: N
 		"unit":
 			if reference_node:
 				_on_unit_selected(reference_node)
+			else:
+				# Manejo para unidades de ejemplo sin nodo de referencia
+				var example_details = {
+					"Nombre": name,
+					"Tipo": "División (Ejemplo)",
+					"Estado": "Disponible",
+					"Composición": "Unidades variadas",
+					"Nota": "Esta es una unidad de ejemplo"
+				}
+				show_details("División: " + name, example_details)
+				add_event("División de ejemplo seleccionada: " + name, "info")
 		"city":
-			# TODO: Implementar selección de ciudad
+			selected_city = name  # Guardar referencia de ciudad seleccionada
+			selected_unit = null
 			var city_details = {
 				"Nombre": name,
 				"Tipo": "Ciudad",
@@ -363,6 +425,30 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+
+# === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
+
+func refresh_interface():
+	"""Refresca toda la interfaz - útil para llamar desde scripts externos"""
+	populate_city_unit_lists()
+	connect_to_existing_divisions()
+	add_event("Interfaz actualizada", "info")
+
+func get_selected_unit() -> Node:
+	"""Retorna la unidad actualmente seleccionada"""
+	return selected_unit
+
+func get_selected_city() -> String:
+	"""Retorna el nombre de la ciudad actualmente seleccionada"""
+	return selected_city if selected_city else ""
+
+func update_resources(new_resources: Dictionary):
+	"""Actualiza los recursos desde scripts externos"""
+	for resource in new_resources:
+		if current_resources.has(resource):
+			current_resources[resource] = new_resources[resource]
+	update_resource_display()
+	add_event("Recursos actualizados", "info")
 
 # === MÉTODOS PLACEHOLDER PARA INTEGRACIÓN FUTURA ===
 
