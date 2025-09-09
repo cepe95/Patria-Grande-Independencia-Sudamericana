@@ -1,0 +1,134 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5x2vgn8qr5qs"]
+
+[ext_resource type="Script" path="res://Scripts/UI/DiplomacyPanel.gd" id="1_diplomacy_panel"]
+
+[node name="DiplomacyPanel" type="Panel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_diplomacy_panel")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.15, 0.15, 0.2, 0.95)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Panel de Diplomacia"
+add_theme_font_size_override("font_size", 18)
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/Header"]
+layout_mode = 2
+text = "X"
+custom_min_size = Vector2(30, 30)
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FactionSelection" type="VBoxContainer" parent="VBoxContainer/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FactionListTitle" type="Label" parent="VBoxContainer/Content/FactionSelection"]
+layout_mode = 2
+text = "Facciones"
+add_theme_font_size_override("font_size", 14)
+
+[node name="FactionListSeparator" type="HSeparator" parent="VBoxContainer/Content/FactionSelection"]
+layout_mode = 2
+
+[node name="FactionListScroll" type="ScrollContainer" parent="VBoxContainer/Content/FactionSelection"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FactionList" type="VBoxContainer" parent="VBoxContainer/Content/FactionSelection/FactionListScroll"]
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="VBoxContainer/Content"]
+layout_mode = 2
+
+[node name="DiplomacyActions" type="VBoxContainer" parent="VBoxContainer/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FactionInfoTitle" type="Label" parent="VBoxContainer/Content/DiplomacyActions"]
+layout_mode = 2
+text = "Información de Facción"
+add_theme_font_size_override("font_size", 14)
+
+[node name="FactionInfoSeparator" type="HSeparator" parent="VBoxContainer/Content/DiplomacyActions"]
+layout_mode = 2
+
+[node name="FactionInfoScroll" type="ScrollContainer" parent="VBoxContainer/Content/DiplomacyActions"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_min_size = Vector2(0, 150)
+
+[node name="FactionInfo" type="VBoxContainer" parent="VBoxContainer/Content/DiplomacyActions/FactionInfoScroll"]
+layout_mode = 2
+
+[node name="ActionsTitle" type="Label" parent="VBoxContainer/Content/DiplomacyActions"]
+layout_mode = 2
+text = "Acciones Diplomáticas"
+add_theme_font_size_override("font_size", 14)
+
+[node name="ActionsSeparator" type="HSeparator" parent="VBoxContainer/Content/DiplomacyActions"]
+layout_mode = 2
+
+[node name="ActionButtonsScroll" type="ScrollContainer" parent="VBoxContainer/Content/DiplomacyActions"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActionButtons" type="VBoxContainer" parent="VBoxContainer/Content/DiplomacyActions/ActionButtonsScroll"]
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ProposalsSection" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ProposalsTitle" type="Label" parent="VBoxContainer/ProposalsSection"]
+layout_mode = 2
+text = "Propuestas Pendientes"
+add_theme_font_size_override("font_size", 14)
+
+[node name="ProposalsSeparator" type="HSeparator" parent="VBoxContainer/ProposalsSection"]
+layout_mode = 2
+
+[node name="ProposalsScroll" type="ScrollContainer" parent="VBoxContainer/ProposalsSection"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ProposalsList" type="VBoxContainer" parent="VBoxContainer/ProposalsSection/ProposalsScroll"]
+layout_mode = 2

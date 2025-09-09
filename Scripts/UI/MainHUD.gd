@@ -10,6 +10,7 @@ extends Control
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
+@onready var diplomacy_panel: Panel = $UI/DiplomacyPanel
 
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
@@ -27,6 +28,7 @@ extends Control
 
 @onready var events_log: VBoxContainer = $UI/EventPanel/VBoxContainer/EventsContainer/EventsList/EventsLog
 @onready var next_turn_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/NextTurnButton
+@onready var diplomacy_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/DiplomacyButton
 @onready var pause_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/PauseButton
 
 # === VARIABLES DE ESTADO ===
@@ -53,7 +55,13 @@ func setup_ui_connections():
 	
 	# Botones de acciones rápidas
 	next_turn_button.pressed.connect(_on_next_turn_pressed)
+	diplomacy_button.pressed.connect(_on_diplomacy_button_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
+	
+	# Conectar señales del panel de diplomacia
+	if diplomacy_panel:
+		diplomacy_panel.panel_closed.connect(_on_diplomacy_panel_closed)
+		diplomacy_panel.diplomatic_action_performed.connect(_on_diplomatic_action_performed)
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
@@ -473,9 +481,10 @@ func manage_city_production(city_name: String, resource_type: String):
 	add_event("Producción ajustada en " + city_name, "info")
 
 func show_diplomacy_panel():
-	"""PLACEHOLDER: Mostrar panel de diplomacia"""
-	print("TODO: Implementar panel de diplomacia")
-	add_event("Panel de diplomacia solicitado", "info")
+	"""Muestra el panel de diplomacia"""
+	if diplomacy_panel:
+		diplomacy_panel.show_panel()
+		add_event("Panel de diplomacia abierto", "info")
 
 func show_technology_tree():
 	"""PLACEHOLDER: Mostrar árbol de tecnologías"""
@@ -491,3 +500,28 @@ func load_game():
 	"""PLACEHOLDER: Cargar partida"""
 	print("TODO: Implementar sistema de carga")
 	add_event("Partida cargada", "success")
+
+# === CALLBACKS DEL SISTEMA DE DIPLOMACIA ===
+
+func _on_diplomacy_button_pressed():
+	"""Callback cuando se presiona el botón de diplomacia"""
+	show_diplomacy_panel()
+
+func _on_diplomacy_panel_closed():
+	"""Callback cuando se cierra el panel de diplomacia"""
+	add_event("Panel de diplomacia cerrado", "info")
+
+func _on_diplomatic_action_performed(action: String, target_faction: String):
+	"""Callback cuando se realiza una acción diplomática"""
+	var message = "%s realizada con %s" % [action, target_faction]
+	
+	# Determinar el tipo de evento basado en la acción
+	var event_type = "info"
+	if action.contains("Guerra") or action.contains("guerra"):
+		event_type = "warning"
+	elif action.contains("Paz") or action.contains("paz"):
+		event_type = "success"
+	elif action.contains("Alianza") or action.contains("alianza"):
+		event_type = "success"
+	
+	add_event(message, event_type)
