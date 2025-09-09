@@ -114,13 +114,21 @@ func initialize_resource_display():
 	# Conectar a los recursos reales de la facción del jugador (asumiendo Patriota)
 	var player_faction = FactionManager.obtener_faccion("Patriota")
 	if player_faction:
-		# Asegurar que la facción tenga recursos iniciales básicos
-		if player_faction.recursos.get("dinero", 0) == 0:
-			player_faction.recursos["dinero"] = 1000
-		if player_faction.recursos.get("pan", 0) == 0:
-			player_faction.recursos["pan"] = 500
-		if player_faction.recursos.get("municion", 0) == 0:
-			player_faction.recursos["municion"] = 200
+		print("✓ Facción Patriota encontrada con recursos iniciales:")
+		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
+		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
+		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+	else:
+		print("⚠️ Facción Patriota no encontrada, usando valores por defecto")
+		# Fallback: crear la facción si no existe
+		var nueva_faccion = FactionData.new()
+		nueva_faccion.nombre = "Patriota"
+		nueva_faccion.recursos = {
+			"dinero": 1000,
+			"pan": 500,
+			"municion": 200
+		}
+		FactionManager.registrar_faccion("Patriota", nueva_faccion)
 	update_resource_display()
 
 func update_resource_display():
@@ -449,6 +457,9 @@ func add_initial_events():
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
 	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
+	add_event("🔄 Sistema de recursos en tiempo real activado", "success")
+	add_event("Los recursos se actualizan cada segundo automáticamente", "info")
+	add_event("Presiona T para probar el sistema de recursos", "info")
 
 # === SEÑALES Y CALLBACKS ===
 func _on_unit_selected(unit_node: Node):
@@ -535,6 +546,9 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_T:
+				# Tecla T para probar el sistema de recursos
+				test_resource_system()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -543,6 +557,30 @@ func refresh_interface():
 	populate_city_unit_lists()
 	connect_to_existing_divisions()
 	add_event("Interfaz actualizada", "info")
+
+func test_resource_system():
+	"""Método de prueba para validar el sistema de recursos"""
+	print("🧪 Ejecutando prueba del sistema de recursos...")
+	
+	# Mostrar estado inicial
+	var player_faction = FactionManager.obtener_faccion("Patriota")
+	if player_faction:
+		print("📊 Recursos iniciales:")
+		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
+		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
+		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+	
+	# Ejecutar un tick manual
+	_on_resource_tick()
+	
+	# Mostrar estado final
+	if player_faction:
+		print("📊 Recursos después del tick:")
+		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
+		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
+		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+	
+	print("🧪 Prueba completada")
 
 func get_selected_unit() -> Node:
 	"""Retorna la unidad actualmente seleccionada"""

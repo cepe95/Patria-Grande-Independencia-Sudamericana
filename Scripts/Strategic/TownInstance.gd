@@ -18,8 +18,9 @@ func _ready():
 
 func _process(delta):
 	detectar_unidades_cercanas()
-	if town_data.estado == "controlado":
-		generar_recursos(delta)
+	# Generación de recursos movida al sistema de ticks
+	# if town_data.estado == "controlado":
+	# 	generar_recursos(delta)
 
 func detectar_unidades_cercanas():
 	var mapa := get_tree().current_scene

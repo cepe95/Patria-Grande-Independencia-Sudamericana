@@ -135,4 +135,6 @@ func consumir_recursos_tick() -> void:
 				fac.recursos[recurso] = max(0, fac.recursos[recurso] - cantidad)
 
 func _process(delta: float) -> void:
-	consumir_recursos(delta)
+	# Consumo de recursos movido al sistema de ticks para evitar consumo continuo
+	# consumir_recursos(delta)
+	pass
