@@ -69,21 +69,38 @@ func setup_ui_connections():
 
 func load_recruitment_and_production_panels():
 	"""Carga los paneles de reclutamiento y producción"""
-	# Cargar panel de reclutamiento
-	var recruitment_scene = preload("res://Scenes/UI/RecruitmentPanel.tscn")
-	recruitment_panel = recruitment_scene.instantiate()
-	recruitment_panel.unit_recruited.connect(_on_unit_recruited)
-	recruitment_panel.recruitment_cancelled.connect(_on_recruitment_cancelled)
-	add_child(recruitment_panel)
-	
-	# Cargar panel de producción
-	var production_scene = preload("res://Scenes/UI/ProductionPanel.tscn")
-	production_panel = production_scene.instantiate()
-	production_panel.production_changed.connect(_on_production_changed)
-	production_panel.production_cancelled.connect(_on_production_cancelled)
-	add_child(production_panel)
-	
-	print("✓ Paneles de reclutamiento y producción cargados")
+	try:
+		# Cargar panel de reclutamiento
+		var recruitment_scene = preload("res://Scenes/UI/RecruitmentPanel.tscn")
+		if recruitment_scene:
+			recruitment_panel = recruitment_scene.instantiate()
+			if recruitment_panel:
+				recruitment_panel.unit_recruited.connect(_on_unit_recruited)
+				recruitment_panel.recruitment_cancelled.connect(_on_recruitment_cancelled)
+				add_child(recruitment_panel)
+				print("✓ Panel de reclutamiento cargado")
+			else:
+				print("⚠ Error al instanciar panel de reclutamiento")
+		else:
+			print("⚠ Error al cargar escena de reclutamiento")
+		
+		# Cargar panel de producción
+		var production_scene = preload("res://Scenes/UI/ProductionPanel.tscn")
+		if production_scene:
+			production_panel = production_scene.instantiate()
+			if production_panel:
+				production_panel.production_changed.connect(_on_production_changed)
+				production_panel.production_cancelled.connect(_on_production_cancelled)
+				add_child(production_panel)
+				print("✓ Panel de producción cargado")
+			else:
+				print("⚠ Error al instanciar panel de producción")
+		else:
+			print("⚠ Error al cargar escena de producción")
+			
+	except error:
+		print("❌ Error crítico cargando paneles: ", error)
+		add_event("Error cargando paneles de gestión", "error")
 
 func initialize_city_production():
 	"""Inicializa la producción por defecto de las ciudades"""
@@ -524,6 +541,11 @@ func _on_recruitment_button_pressed(city_name: String, city_data: Dictionary):
 	"""Callback cuando se presiona el botón de reclutamiento"""
 	if not recruitment_panel:
 		add_event("Error: Panel de reclutamiento no disponible", "error")
+		print("❌ Panel de reclutamiento no está cargado")
+		return
+	
+	if city_name.is_empty():
+		add_event("Error: Nombre de ciudad inválido", "error")
 		return
 	
 	# Crear TownData temporal si no existe
@@ -543,6 +565,11 @@ func _on_production_button_pressed(city_name: String, city_data: Dictionary):
 	"""Callback cuando se presiona el botón de producción"""
 	if not production_panel:
 		add_event("Error: Panel de producción no disponible", "error")
+		print("❌ Panel de producción no está cargado")
+		return
+	
+	if city_name.is_empty():
+		add_event("Error: Nombre de ciudad inválido", "error")
 		return
 	
 	# Crear TownData temporal si no existe
