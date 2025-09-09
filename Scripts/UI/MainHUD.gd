@@ -12,9 +12,7 @@ extends Control
 @onready var pause_menu: Control = $UI/PauseMenu
 
 # Referencias a elementos específicos de los paneles
-@onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
-@onready var comida_label: Label = $UI/ResourceBar/Content/ResourcesContainer/ComidaLabel
-@onready var municion_label: Label = $UI/ResourceBar/Content/ResourcesContainer/MunicionLabel
+@onready var resources_container: HBoxContainer = $UI/ResourceBar/Content/ResourcesContainer
 @onready var date_label: Label = $UI/ResourceBar/Content/DateTurnContainer/DateLabel
 @onready var turn_label: Label = $UI/ResourceBar/Content/DateTurnContainer/TurnLabel
 
@@ -34,6 +32,9 @@ var selected_unit: Node = null
 var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
+
+# === SISTEMA DE RECURSOS DINÁMICO ===
+var resource_labels: Dictionary = {}  # Almacena las referencias a los labels de recursos
 
 # === SISTEMA DE TIEMPO REAL ===
 var resource_timer: Timer
@@ -129,21 +130,74 @@ func initialize_resource_display():
 			"municion": 200
 		}
 		FactionManager.registrar_faccion("Patriota", nueva_faccion)
+	setup_dynamic_resource_display()
 	update_resource_display()
+
+func get_resource_names_ordered() -> Array:
+	"""Obtiene los nombres de recursos en el orden definido en FactionData.gd"""
+	# Crear una instancia temporal de FactionData para obtener el orden de recursos
+	var temp_faction_data = FactionData.new()
+	var resource_keys = temp_faction_data.recursos.keys()
+	return resource_keys
+
+func capitalize_resource_name(resource_name: String) -> String:
+	"""Capitaliza el nombre del recurso (primera letra mayúscula) con casos especiales"""
+	if resource_name.length() == 0:
+		return resource_name
+	
+	# Casos especiales para nombres con acentos o caracteres especiales
+	match resource_name:
+		"municion":
+			return "Munición"
+		"canones":
+			return "Cañones"
+		_:
+			return resource_name[0].to_upper() + resource_name.slice(1)
+
+func setup_dynamic_resource_display():
+	"""Configura dinámicamente los labels de recursos basándose en FactionData"""
+	# Limpiar labels existentes en resources_container
+	for child in resources_container.get_children():
+		child.queue_free()
+	resource_labels.clear()
+	
+	# Obtener los nombres de recursos en orden
+	var resource_names = get_resource_names_ordered()
+	
+	# Crear labels dinámicamente para cada recurso
+	for i in range(resource_names.size()):
+		var resource_name = resource_names[i]
+		
+		# Crear label para el recurso
+		var resource_label = Label.new()
+		resource_label.name = capitalize_resource_name(resource_name) + "Label"
+		resource_label.text = "%s: 0" % capitalize_resource_name(resource_name)
+		resources_container.add_child(resource_label)
+		resource_labels[resource_name] = resource_label
+		
+		# Agregar separador visual entre recursos (excepto el último)
+		if i < resource_names.size() - 1:
+			var separator = VSeparator.new()
+			resources_container.add_child(separator)
+	
+	print("✓ Sistema de recursos dinámico configurado con %d recursos" % resource_names.size())
 
 func update_resource_display():
 	"""Actualiza la visualización de recursos en la barra superior"""
 	var player_faction = FactionManager.obtener_faccion("Patriota")
 	if player_faction:
 		current_resources = player_faction.recursos
-		dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
-		comida_label.text = "Comida: %d" % current_resources.get("pan", 0)  # Usar 'pan' como comida
-		municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+		
+		# Actualizar dinámicamente todos los labels de recursos
+		for resource_name in resource_labels.keys():
+			var label = resource_labels[resource_name]
+			var resource_value = current_resources.get(resource_name, 0)
+			label.text = "%s: %d" % [capitalize_resource_name(resource_name), resource_value]
 	else:
 		# Fallback a valores por defecto si no hay facción
-		dinero_label.text = "Dinero: 0"
-		comida_label.text = "Comida: 0"  
-		municion_label.text = "Munición: 0"
+		for resource_name in resource_labels.keys():
+			var label = resource_labels[resource_name]
+			label.text = "%s: 0" % capitalize_resource_name(resource_name)
 
 func _on_resource_tick():
 	"""Callback ejecutado cada tick del timer de recursos"""
@@ -161,11 +215,10 @@ func _on_resource_tick():
 	# Debug: mostrar recursos actuales
 	var player_faction = FactionManager.obtener_faccion("Patriota")
 	if player_faction:
-		print("💰 Recursos actuales - Dinero: %d, Pan: %d, Munición: %d" % [
-			player_faction.recursos.get("dinero", 0),
-			player_faction.recursos.get("pan", 0), 
-			player_faction.recursos.get("municion", 0)
-		])
+		print("💰 Recursos actuales:")
+		for resource_name in player_faction.recursos.keys():
+			var value = player_faction.recursos.get(resource_name, 0)
+			print("  - %s: %d" % [capitalize_resource_name(resource_name), value])
 
 func update_town_production():
 	"""Actualiza la producción de recursos de todos los pueblos controlados"""
@@ -566,9 +619,9 @@ func test_resource_system():
 	var player_faction = FactionManager.obtener_faccion("Patriota")
 	if player_faction:
 		print("📊 Recursos iniciales:")
-		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
-		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
-		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+		for resource_name in player_faction.recursos.keys():
+			var value = player_faction.recursos.get(resource_name, 0)
+			print("  - %s: %d" % [capitalize_resource_name(resource_name), value])
 	
 	# Ejecutar un tick manual
 	_on_resource_tick()
@@ -576,9 +629,9 @@ func test_resource_system():
 	# Mostrar estado final
 	if player_faction:
 		print("📊 Recursos después del tick:")
-		print("  - Dinero: %d" % player_faction.recursos.get("dinero", 0))
-		print("  - Pan: %d" % player_faction.recursos.get("pan", 0))
-		print("  - Munición: %d" % player_faction.recursos.get("municion", 0))
+		for resource_name in player_faction.recursos.keys():
+			var value = player_faction.recursos.get(resource_name, 0)
+			print("  - %s: %d" % [capitalize_resource_name(resource_name), value])
 	
 	print("🧪 Prueba completada")
 
