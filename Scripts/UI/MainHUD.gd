@@ -11,6 +11,10 @@ extends Control
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
 
+# Referencias a paneles de reclutamiento y producción
+@onready var recruitment_panel: Panel = null
+@onready var production_panel: Panel = null
+
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
 @onready var comida_label: Label = $UI/ResourceBar/Content/ResourcesContainer/ComidaLabel
@@ -35,14 +39,19 @@ var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
 
+# Gestión de producción urbana por ciudad
+var city_production: Dictionary = {}  # city_name -> resource_type
+
 # === INICIALIZACIÓN ===
 func _ready():
 	print("✓ MainHUD inicializado")
 	setup_ui_connections()
+	load_recruitment_and_production_panels()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
 	setup_strategic_map_connections()
 	initialize_resource_display()
+	initialize_city_production()
 	populate_city_unit_lists()
 	add_initial_events()
 
@@ -57,6 +66,33 @@ func setup_ui_connections():
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
+
+func load_recruitment_and_production_panels():
+	"""Carga los paneles de reclutamiento y producción"""
+	# Cargar panel de reclutamiento
+	var recruitment_scene = preload("res://Scenes/UI/RecruitmentPanel.tscn")
+	recruitment_panel = recruitment_scene.instantiate()
+	recruitment_panel.unit_recruited.connect(_on_unit_recruited)
+	recruitment_panel.recruitment_cancelled.connect(_on_recruitment_cancelled)
+	add_child(recruitment_panel)
+	
+	# Cargar panel de producción
+	var production_scene = preload("res://Scenes/UI/ProductionPanel.tscn")
+	production_panel = production_scene.instantiate()
+	production_panel.production_changed.connect(_on_production_changed)
+	production_panel.production_cancelled.connect(_on_production_cancelled)
+	add_child(production_panel)
+	
+	print("✓ Paneles de reclutamiento y producción cargados")
+
+func initialize_city_production():
+	"""Inicializa la producción por defecto de las ciudades"""
+	# Configurar producción por defecto para ciudades conocidas
+	city_production["Buenos Aires"] = "dinero"
+	city_production["Córdoba"] = "comida"
+	city_production["Montevideo"] = "municion"
+	
+	print("✓ Producción urbana inicializada")
 
 func setup_strategic_map_connections():
 	"""Conecta las señales del mapa estratégico"""
@@ -183,11 +219,11 @@ func add_example_units():
 
 func add_city_to_list(city_data: Dictionary):
 	"""Agrega una ciudad a la lista"""
-	var city_entry = create_list_entry(
+	var city_entry = create_city_list_entry(
 		city_data.get("nombre", "Ciudad Desconocida"),
 		city_data.get("tipo", "Desconocido"),
 		city_data.get("faccion", "Neutral"),
-		"city"
+		city_data
 	)
 	cities_list.add_child(city_entry)
 
@@ -205,6 +241,111 @@ func add_unit_to_list(unit_node: Node):
 		unit_node
 	)
 	units_list.add_child(unit_entry)
+
+func create_city_list_entry(name: String, type: String, faction: String, city_data: Dictionary) -> Control:
+	"""Crea una entrada específica para ciudades con botones de gestión"""
+	var entry = VBoxContainer.new()
+	entry.add_theme_constant_override("separation", 5)
+	
+	# Container principal con información básica
+	var main_container = HBoxContainer.new()
+	main_container.add_theme_constant_override("separation", 10)
+	
+	# Icono de facción/bandera
+	var icon = TextureRect.new()
+	icon.custom_min_size = Vector2(24, 24)
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	
+	# Cargar icono según facción
+	var icon_path = ""
+	match faction:
+		"Patriota":
+			icon_path = "res://Assets/Icons/Division Patriota.png"
+		"Realista":
+			icon_path = "res://Assets/Icons/Division Realista.png"
+		_:
+			icon_path = "res://Assets/Icons/Division Patriota.png"  # Por defecto
+	
+	var texture = load(icon_path) as Texture2D
+	if texture:
+		icon.texture = texture
+	
+	# Información de texto
+	var info_container = VBoxContainer.new()
+	info_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var name_label = Label.new()
+	name_label.text = name
+	name_label.add_theme_font_size_override("font_size", 12)
+	
+	var type_label = Label.new()
+	type_label.text = "%s (%s)" % [type, faction]
+	type_label.add_theme_font_size_override("font_size", 10)
+	type_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	
+	# Mostrar producción actual
+	var production_resource = city_production.get(name, "dinero")
+	var production_label = Label.new()
+	production_label.text = "Produce: %s" % get_resource_display_name(production_resource)
+	production_label.add_theme_font_size_override("font_size", 9)
+	production_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.7))
+	
+	info_container.add_child(name_label)
+	info_container.add_child(type_label)
+	info_container.add_child(production_label)
+	
+	# Botón de selección/ver detalles
+	var select_button = Button.new()
+	select_button.text = "Ver"
+	select_button.custom_min_size = Vector2(50, 30)
+	select_button.pressed.connect(_on_city_selected.bind(name, city_data))
+	
+	main_container.add_child(icon)
+	main_container.add_child(info_container)
+	main_container.add_child(select_button)
+	
+	# Container de botones de gestión
+	var management_container = HBoxContainer.new()
+	management_container.add_theme_constant_override("separation", 5)
+	management_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	
+	# Botón de reclutamiento
+	var recruit_button = Button.new()
+	recruit_button.text = "🎖️ Reclutar"
+	recruit_button.custom_min_size = Vector2(80, 25)
+	recruit_button.add_theme_font_size_override("font_size", 10)
+	recruit_button.pressed.connect(_on_recruitment_button_pressed.bind(name, city_data))
+	
+	# Botón de producción
+	var production_button = Button.new()
+	production_button.text = "🏭 Producción"
+	production_button.custom_min_size = Vector2(80, 25)
+	production_button.add_theme_font_size_override("font_size", 10)
+	production_button.pressed.connect(_on_production_button_pressed.bind(name, city_data))
+	
+	management_container.add_child(recruit_button)
+	management_container.add_child(production_button)
+	
+	entry.add_child(main_container)
+	entry.add_child(management_container)
+	
+	# Separador
+	var separator = HSeparator.new()
+	entry.add_child(separator)
+	
+	return entry
+
+func get_resource_display_name(resource_key: String) -> String:
+	"""Convierte clave de recurso a nombre para mostrar"""
+	match resource_key:
+		"dinero":
+			return "💰 Dinero"
+		"comida":
+			return "🍞 Comida"
+		"municion":
+			return "⚔️ Munición"
+		_:
+			return resource_key.capitalize()
 
 func create_list_entry(name: String, type: String, faction: String, entry_type: String, reference_node: Node = null) -> Control:
 	"""Crea una entrada para las listas de ciudades/unidades"""
@@ -360,8 +501,64 @@ func _on_unit_selected(unit_node: Node):
 		show_details("División: " + unit_data.get("nombre", "Desconocida"), details)
 		add_event("División seleccionada: " + unit_data.get("nombre", "Desconocida"), "info")
 
+func _on_city_selected(city_name: String, city_data: Dictionary):
+	"""Callback cuando se selecciona una ciudad para ver detalles"""
+	selected_city = city_name
+	selected_unit = null
+	
+	var production_resource = city_production.get(city_name, "dinero")
+	var details = {
+		"Nombre": city_name,
+		"Tipo": city_data.get("tipo", "Ciudad"),
+		"Facción": city_data.get("faccion", "Neutral"),
+		"Estado": "Controlada",
+		"Población": "15,000",
+		"Manpower": "150",
+		"Producción Actual": get_resource_display_name(production_resource),
+		"Guarnición": "1 Compañía"
+	}
+	show_details("Ciudad: " + city_name, details)
+	add_event("Ciudad seleccionada: " + city_name, "info")
+
+func _on_recruitment_button_pressed(city_name: String, city_data: Dictionary):
+	"""Callback cuando se presiona el botón de reclutamiento"""
+	if not recruitment_panel:
+		add_event("Error: Panel de reclutamiento no disponible", "error")
+		return
+	
+	# Crear TownData temporal si no existe
+	var town_data = null
+	if city_data.has("town_data"):
+		town_data = city_data.town_data
+	else:
+		town_data = TownData.new()
+		town_data.nombre = city_name
+		town_data.tipo = city_data.get("tipo", "ciudad_mediana")
+		town_data.manpower = 150
+	
+	recruitment_panel.show_for_city(city_name, town_data, current_resources)
+	add_event("Abriendo panel de reclutamiento para " + city_name, "info")
+
+func _on_production_button_pressed(city_name: String, city_data: Dictionary):
+	"""Callback cuando se presiona el botón de producción"""
+	if not production_panel:
+		add_event("Error: Panel de producción no disponible", "error")
+		return
+	
+	# Crear TownData temporal si no existe
+	var town_data = null
+	if city_data.has("town_data"):
+		town_data = city_data.town_data
+	else:
+		town_data = TownData.new()
+		town_data.nombre = city_name
+		town_data.tipo = city_data.get("tipo", "ciudad_mediana")
+	
+	var current_production = city_production.get(city_name, "dinero")
+	production_panel.show_for_city(city_name, town_data, current_production)
+	add_event("Abriendo panel de producción para " + city_name, "info")
 func _on_list_entry_selected(entry_type: String, name: String, reference_node: Node):
-	"""Callback cuando se selecciona una entrada de las listas"""
+	"""Callback cuando se selecciona una entrada de las listas (para unidades)"""
 	match entry_type:
 		"unit":
 			if reference_node:
@@ -377,31 +574,121 @@ func _on_list_entry_selected(entry_type: String, name: String, reference_node: N
 				}
 				show_details("División: " + name, example_details)
 				add_event("División de ejemplo seleccionada: " + name, "info")
-		"city":
-			selected_city = name  # Guardar referencia de ciudad seleccionada
-			selected_unit = null
-			var city_details = {
-				"Nombre": name,
-				"Tipo": "Ciudad",
-				"Estado": "Controlada",
-				"Población": "15,000",
-				"Recursos": "Comida, Dinero",
-				"Guarnición": "1 Compañía"
-			}
-			show_details("Ciudad: " + name, city_details)
-			add_event("Ciudad seleccionada: " + name, "info")
+
+# === CALLBACKS DE PANELES DE GESTIÓN ===
+func _on_unit_recruited(unit_data: UnitData, city_name: String):
+	"""Callback cuando se recluta una nueva unidad"""
+	# Calcular costos
+	var costs = recruitment_panel.get_recruitment_costs(unit_data)
+	
+	# Verificar recursos disponibles
+	if not can_afford_recruitment(costs):
+		add_event("Error: Recursos insuficientes para reclutar " + unit_data.nombre, "error")
+		return
+	
+	# Deducir recursos
+	deduct_resources(costs)
+	
+	# Crear la nueva unidad (placeholder - en implementación real se agregaría al mapa)
+	add_event("¡%s reclutada en %s!" % [unit_data.nombre, city_name], "success")
+	add_event("Costos: 💰%d 🍞%d ⚔️%d" % [costs.dinero, costs.comida, costs.municion], "info")
+	
+	# Actualizar interfaz
+	update_resource_display()
+	
+	print("✓ Unidad reclutada: %s en %s" % [unit_data.nombre, city_name])
+
+func _on_recruitment_cancelled():
+	"""Callback cuando se cancela el reclutamiento"""
+	add_event("Reclutamiento cancelado", "info")
+
+func _on_production_changed(city_name: String, resource_type: String, production_amount: int):
+	"""Callback cuando se cambia la producción de una ciudad"""
+	var old_resource = city_production.get(city_name, "dinero")
+	city_production[city_name] = resource_type
+	
+	add_event("Producción de %s cambiada a %s (+%d/turno)" % [
+		city_name, 
+		get_resource_display_name(resource_type), 
+		production_amount
+	], "success")
+	
+	# Actualizar la lista de ciudades para reflejar el cambio
+	populate_cities_list()
+	
+	print("✓ Producción cambiada en %s: %s -> %s" % [city_name, old_resource, resource_type])
+
+func _on_production_cancelled():
+	"""Callback cuando se cancela el cambio de producción"""
+	add_event("Cambio de producción cancelado", "info")
 
 func _on_close_details_pressed():
 	"""Callback para cerrar el panel de detalles"""
 	hide_details()
 
+# === MANEJO DE RECURSOS Y RECLUTAMIENTO ===
+func can_afford_recruitment(costs: Dictionary) -> bool:
+	"""Verifica si se pueden costear los recursos para el reclutamiento"""
+	for resource in costs:
+		if resource == "manpower":
+			continue  # El manpower se verifica por ciudad, no globalmente
+		if current_resources.get(resource, 0) < costs.get(resource, 0):
+			return false
+	return true
+
+func deduct_resources(costs: Dictionary):
+	"""Deduce recursos del inventario global"""
+	for resource in costs:
+		if resource == "manpower":
+			continue  # El manpower se maneja por ciudad
+		if current_resources.has(resource):
+			current_resources[resource] -= costs.get(resource, 0)
+			# Asegurar que no sea negativo
+			current_resources[resource] = max(0, current_resources[resource])
+
+func process_city_production():
+	"""Procesa la producción de todas las ciudades por turno"""
+	var production_summary = {}
+	
+	for city_name in city_production:
+		var resource_type = city_production[city_name]
+		var city_type = "ciudad_mediana"  # Por defecto
+		
+		# TODO: Obtener tipo real de ciudad desde datos del mapa
+		# En implementación real, esto vendría de TownData
+		
+		# Calcular producción usando el método estático del ProductionPanel
+		var production_script = preload("res://Scripts/UI/ProductionPanel.gd")
+		var production_amount = production_script.get_production_amount_for_city(city_type, resource_type)
+		
+		# Agregar recursos
+		if not current_resources.has(resource_type):
+			current_resources[resource_type] = 0
+		current_resources[resource_type] += production_amount
+		
+		# Agregar al resumen
+		if not production_summary.has(resource_type):
+			production_summary[resource_type] = 0
+		production_summary[resource_type] += production_amount
+	
+	# Mostrar resumen de producción en eventos
+	for resource_type in production_summary:
+		add_event("Producción de %s: +%d" % [
+			get_resource_display_name(resource_type), 
+			production_summary[resource_type]
+		], "success")
+	
+	update_resource_display()
 func _on_next_turn_pressed():
 	"""Callback para avanzar al siguiente turno"""
 	current_turn += 1
 	update_date_turn_display("", current_turn)
-	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Procesar producción de ciudades
+	process_city_production()
+	
+	add_event("=== Turno %d iniciado ===" % current_turn, "success")
+	
 	print("✓ Avanzando al turno: ", current_turn)
 
 func _on_pause_pressed():
@@ -463,14 +750,18 @@ func start_battle(attacking_unit: Node, defending_unit: Node):
 	add_event("¡Batalla iniciada!", "warning")
 
 func recruit_unit_in_city(city_name: String, unit_type: String):
-	"""PLACEHOLDER: Reclutar unidad en ciudad"""
-	print("TODO: Implementar reclutamiento de unidades")
-	add_event("Reclutamiento ordenado en " + city_name, "info")
+	"""Implementado: Reclutar unidad en ciudad usando el panel de reclutamiento"""
+	# Este método ahora se maneja a través del panel de reclutamiento
+	# Buscar datos de ciudad
+	var city_data = {"nombre": city_name, "tipo": "ciudad_mediana"}  # Datos básicos
+	_on_recruitment_button_pressed(city_name, city_data)
 
 func manage_city_production(city_name: String, resource_type: String):
-	"""PLACEHOLDER: Gestionar producción de ciudad"""
-	print("TODO: Implementar gestión de producción urbana")
-	add_event("Producción ajustada en " + city_name, "info")
+	"""Implementado: Gestionar producción de ciudad usando el panel de producción"""
+	# Este método ahora se maneja a través del panel de producción
+	# Buscar datos de ciudad
+	var city_data = {"nombre": city_name, "tipo": "ciudad_mediana"}  # Datos básicos
+	_on_production_button_pressed(city_name, city_data)
 
 func show_diplomacy_panel():
 	"""PLACEHOLDER: Mostrar panel de diplomacia"""
