@@ -1,0 +1,147 @@
+[gd_scene load_steps=2 format=3 uid="uid://cw8jx5fh6q7pm"]
+
+[ext_resource type="Script" path="res://Scripts/UI/ResearchPanel.gd" id="1_research_panel"]
+
+[node name="ResearchPanel" type="Panel"]
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 50.0
+offset_top = -300.0
+offset_right = 850.0
+offset_bottom = 300.0
+grow_vertical = 2
+script = ExtResource("1_research_panel")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.2, 0.2, 0.3, 0.95)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="HeaderContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/HeaderContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sistema de Investigación Científica y Tecnológica"
+theme_override_font_sizes/font_size = 16
+
+[node name="RefreshButton" type="Button" parent="VBoxContainer/HeaderContainer"]
+layout_mode = 2
+text = "Actualizar"
+custom_min_size = Vector2(80, 0)
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/HeaderContainer"]
+layout_mode = 2
+text = "X"
+custom_min_size = Vector2(40, 0)
+
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Disponibles" type="Control" parent="VBoxContainer/TabContainer"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/Disponibles"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="AvailableList" type="VBoxContainer" parent="VBoxContainer/TabContainer/Disponibles/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnProgreso" type="Control" parent="VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/EnProgreso"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="InProgressList" type="VBoxContainer" parent="VBoxContainer/TabContainer/EnProgreso/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Completadas" type="Control" parent="VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/Completadas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CompletedList" type="VBoxContainer" parent="VBoxContainer/TabContainer/Completadas/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TechnologyDetails" type="Panel" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+custom_min_size = Vector2(0, 200)
+
+[node name="DetailBackground" type="ColorRect" parent="VBoxContainer/TechnologyDetails"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.15, 0.15, 0.25, 0.9)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TechnologyDetails"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="TechName" type="Label" parent="VBoxContainer/TechnologyDetails/VBoxContainer"]
+layout_mode = 2
+text = "Nombre de la Tecnología"
+theme_override_font_sizes/font_size = 14
+
+[node name="TechDescription" type="Label" parent="VBoxContainer/TechnologyDetails/VBoxContainer"]
+layout_mode = 2
+text = "Descripción detallada de la tecnología y sus efectos."
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+
+[node name="DetailsContainer" type="HBoxContainer" parent="VBoxContainer/TechnologyDetails/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Requirements" type="VBoxContainer" parent="VBoxContainer/TechnologyDetails/VBoxContainer"]
+layout_mode = 2
+
+[node name="Benefits" type="VBoxContainer" parent="VBoxContainer/TechnologyDetails/VBoxContainer"]
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="VBoxContainer/TechnologyDetails/VBoxContainer"]
+layout_mode = 2

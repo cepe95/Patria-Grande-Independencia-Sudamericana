@@ -1,0 +1,94 @@
+{
+	"technologies": [
+		{
+			"id": "ideologia_libertad",
+			"name": "Ideología de la Libertad",
+			"description": "Desarrollo y difusión de ideas republicanas y de independencia que inspiran a los pueblos sudamericanos.",
+			"category": "diplomacia",
+			"research_cost": 200,
+			"research_time": 12,
+			"required_technologies": [],
+			"required_resources": {
+				"dinero": 400,
+				"biblias": 50
+			},
+			"effects": {
+				"recruitment_bonus": 1.2
+			},
+			"military_benefits": {
+				"morale_bonus": 15,
+				"recruitment_rate": 25
+			},
+			"economic_benefits": {},
+			"diplomatic_benefits": {
+				"patriot_relations": 30,
+				"rebellion_chance": 20,
+				"propaganda_effectiveness": 25
+			},
+			"icon_path": "res://Assets/Icons/Tech/ideologia.png",
+			"era": "independencia",
+			"is_secret": false
+		},
+		{
+			"id": "alianzas_regionales",
+			"name": "Alianzas Regionales",
+			"description": "Establecimiento de acuerdos diplomáticos entre las distintas regiones independentistas.",
+			"category": "diplomacia",
+			"research_cost": 300,
+			"research_time": 18,
+			"required_technologies": ["ideologia_libertad"],
+			"required_resources": {
+				"dinero": 600,
+				"prestigio": 100
+			},
+			"effects": {
+				"diplomatic_range": 1.5
+			},
+			"military_benefits": {
+				"reinforcement_availability": 20,
+				"shared_intelligence": 15
+			},
+			"economic_benefits": {
+				"trade_agreements": 25,
+				"resource_sharing": 20
+			},
+			"diplomatic_benefits": {
+				"alliance_stability": 40,
+				"negotiation_bonus": 30,
+				"mutual_defense": 25
+			},
+			"icon_path": "res://Assets/Icons/Tech/alianzas.png",
+			"era": "independencia",
+			"is_secret": false
+		},
+		{
+			"id": "espionaje_avanzado",
+			"name": "Espionaje Avanzado",
+			"description": "Desarrollo de redes de espionaje para obtener información sobre movimientos enemigos.",
+			"category": "diplomacia",
+			"research_cost": 250,
+			"research_time": 14,
+			"required_technologies": ["ideologia_libertad"],
+			"required_resources": {
+				"dinero": 500,
+				"moral": 50
+			},
+			"effects": {
+				"intelligence_gathering": 1.8
+			},
+			"military_benefits": {
+				"enemy_visibility": 35,
+				"ambush_effectiveness": 20
+			},
+			"economic_benefits": {},
+			"diplomatic_benefits": {
+				"counter_intelligence": 30,
+				"sabotage_capability": 25,
+				"information_network": 40
+			},
+			"icon_path": "res://Assets/Icons/Tech/espionaje.png",
+			"era": "independencia",
+			"is_secret": true
+		}
+	]
+}

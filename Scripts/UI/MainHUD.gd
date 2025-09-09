@@ -9,6 +9,7 @@ extends Control
 @onready var city_unit_list_panel: Panel = $UI/CityUnitListPanel
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
+@onready var research_panel: Panel = $UI/ResearchPanel
 @onready var pause_menu: Control = $UI/PauseMenu
 
 # Referencias a elementos específicos de los paneles
@@ -28,6 +29,7 @@ extends Control
 @onready var events_log: VBoxContainer = $UI/EventPanel/VBoxContainer/EventsContainer/EventsList/EventsLog
 @onready var next_turn_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/NextTurnButton
 @onready var pause_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/PauseButton
+@onready var research_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/ResearchButton
 
 # === VARIABLES DE ESTADO ===
 var selected_unit: Node = null
@@ -42,6 +44,7 @@ func _ready():
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
 	setup_strategic_map_connections()
+	connect_research_manager_signals()
 	initialize_resource_display()
 	populate_city_unit_lists()
 	add_initial_events()
@@ -54,9 +57,13 @@ func setup_ui_connections():
 	# Botones de acciones rápidas
 	next_turn_button.pressed.connect(_on_next_turn_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
+	research_button.pressed.connect(_on_research_pressed)
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
+	
+	# Conectar señales del panel de investigación
+	setup_research_panel_connections()
 
 func setup_strategic_map_connections():
 	"""Conecta las señales del mapa estratégico"""
@@ -338,6 +345,7 @@ func add_initial_events():
 	add_event("¡Bienvenido a Patria Grande: Independencia Sudamericana!", "success")
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
+	add_event("Usa R para abrir el panel de investigación", "info")
 	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
 
 # === SEÑALES Y CALLBACKS ===
@@ -401,6 +409,10 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
+	# Procesar investigación del turno
+	if ResearchManager:
+		ResearchManager.process_turn_research()
+	
 	# TODO: Aquí se procesarían los eventos del turno
 	print("✓ Avanzando al turno: ", current_turn)
 
@@ -425,6 +437,8 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_R:
+				_on_research_pressed()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -478,9 +492,8 @@ func show_diplomacy_panel():
 	add_event("Panel de diplomacia solicitado", "info")
 
 func show_technology_tree():
-	"""PLACEHOLDER: Mostrar árbol de tecnologías"""
-	print("TODO: Implementar árbol de tecnologías")
-	add_event("Investigación tecnológica solicitada", "info")
+	"""Mostrar árbol de tecnologías"""
+	_on_research_pressed()
 
 func save_game():
 	"""PLACEHOLDER: Guardar partida"""
@@ -491,3 +504,61 @@ func load_game():
 	"""PLACEHOLDER: Cargar partida"""
 	print("TODO: Implementar sistema de carga")
 	add_event("Partida cargada", "success")
+
+# === SISTEMA DE INVESTIGACIÓN ===
+
+func setup_research_panel_connections():
+	"""Conecta las señales del panel de investigación"""
+	if research_panel:
+		research_panel.research_started.connect(_on_research_started)
+		research_panel.technology_selected.connect(_on_technology_selected)
+		# Inicializar el panel de investigación con la facción del jugador
+		research_panel.set_faction("Patriota")  # TODO: Obtener de configuración del jugador
+
+func _on_research_pressed():
+	"""Callback para mostrar/ocultar el panel de investigación"""
+	if research_panel:
+		research_panel.visible = not research_panel.visible
+		if research_panel.visible:
+			add_event("Panel de investigación abierto", "info")
+		else:
+			add_event("Panel de investigación cerrado", "info")
+
+func _on_research_started(technology_id: String):
+	"""Callback cuando se inicia una investigación"""
+	if ResearchManager:
+		var tech = ResearchManager.get_technology_by_id(technology_id)
+		if tech:
+			add_event("Investigación iniciada: " + tech.name, "success")
+
+func _on_technology_selected(technology_id: String):
+	"""Callback cuando se selecciona una tecnología"""
+	if ResearchManager:
+		var tech = ResearchManager.get_technology_by_id(technology_id)
+		if tech:
+			add_event("Tecnología seleccionada: " + tech.name, "info")
+
+func connect_research_manager_signals():
+	"""Conecta las señales del ResearchManager"""
+	if ResearchManager:
+		ResearchManager.research_completed.connect(_on_research_completed)
+		ResearchManager.new_technology_available.connect(_on_new_technology_available)
+
+func _on_research_completed(technology_id: String, faction_name: String):
+	"""Callback cuando se completa una investigación"""
+	if ResearchManager:
+		var tech = ResearchManager.get_technology_by_id(technology_id)
+		if tech:
+			add_event("¡Investigación completada! " + tech.name, "success")
+			
+			# Mostrar beneficios en el log de eventos
+			var benefits_summary = tech.get_benefits_summary()
+			if benefits_summary != "":
+				add_event("Beneficios obtenidos: " + benefits_summary.split("\n")[0], "info")
+
+func _on_new_technology_available(technology_id: String, faction_name: String):
+	"""Callback cuando se desbloquea una nueva tecnología"""
+	if ResearchManager:
+		var tech = ResearchManager.get_technology_by_id(technology_id)
+		if tech:
+			add_event("Nueva tecnología disponible: " + tech.name, "info")

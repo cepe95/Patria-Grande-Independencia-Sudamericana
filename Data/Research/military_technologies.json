@@ -1,0 +1,82 @@
+{
+	"technologies": [
+		{
+			"id": "mosquete_mejorado",
+			"name": "Mosquete Mejorado",
+			"description": "Mejoras en la fabricación de mosquetes que aumentan su precisión y fiabilidad en combate.",
+			"category": "militar",
+			"research_cost": 150,
+			"research_time": 8,
+			"required_technologies": [],
+			"required_resources": {
+				"dinero": 300,
+				"municion": 50
+			},
+			"effects": {
+				"unit_firepower": 1.2
+			},
+			"military_benefits": {
+				"infantry_attack": 15,
+				"unit_morale": 5
+			},
+			"economic_benefits": {},
+			"diplomatic_benefits": {},
+			"icon_path": "res://Assets/Icons/Tech/mosquete_mejorado.png",
+			"era": "colonial",
+			"is_secret": false
+		},
+		{
+			"id": "tacticas_guerrilla",
+			"name": "Tácticas de Guerrilla",
+			"description": "Desarrollo de técnicas de combate irregular adaptadas al terreno sudamericano.",
+			"category": "militar",
+			"research_cost": 200,
+			"research_time": 10,
+			"required_technologies": [],
+			"required_resources": {
+				"dinero": 250,
+				"experiencia_combate": 100
+			},
+			"effects": {
+				"terrain_bonus": 1.3
+			},
+			"military_benefits": {
+				"mobility": 20,
+				"defensive_bonus": 25,
+				"attrition_resistance": 15
+			},
+			"economic_benefits": {},
+			"diplomatic_benefits": {},
+			"icon_path": "res://Assets/Icons/Tech/guerrilla.png",
+			"era": "independencia",
+			"is_secret": false
+		},
+		{
+			"id": "red_comunicaciones",
+			"name": "Red de Comunicaciones",
+			"description": "Establecimiento de un sistema de comunicaciones mediante correos y señales para coordinar movimientos militares.",
+			"category": "militar",
+			"research_cost": 180,
+			"research_time": 12,
+			"required_technologies": ["tacticas_guerrilla"],
+			"required_resources": {
+				"dinero": 400,
+				"caballos": 20
+			},
+			"effects": {
+				"coordination_bonus": 1.25
+			},
+			"military_benefits": {
+				"command_range": 50,
+				"reinforcement_speed": 30
+			},
+			"economic_benefits": {},
+			"diplomatic_benefits": {
+				"intelligence_gathering": 20
+			},
+			"icon_path": "res://Assets/Icons/Tech/comunicaciones.png",
+			"era": "independencia",
+			"is_secret": false
+		}
+	]
+}

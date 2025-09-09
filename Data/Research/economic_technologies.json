@@ -1,0 +1,85 @@
+{
+	"technologies": [
+		{
+			"id": "comercio_regional",
+			"name": "Comercio Regional",
+			"description": "Desarrollo de rutas comerciales entre las diferentes regiones sudamericanas.",
+			"category": "economia",
+			"research_cost": 120,
+			"research_time": 6,
+			"required_technologies": [],
+			"required_resources": {
+				"dinero": 500
+			},
+			"effects": {
+				"trade_income": 1.3
+			},
+			"military_benefits": {},
+			"economic_benefits": {
+				"resource_generation": 25,
+				"trade_routes": 2,
+				"tax_income": 20
+			},
+			"diplomatic_benefits": {
+				"trade_relations": 15
+			},
+			"icon_path": "res://Assets/Icons/Tech/comercio.png",
+			"era": "colonial",
+			"is_secret": false
+		},
+		{
+			"id": "mineria_avanzada",
+			"name": "Minería Avanzada",
+			"description": "Técnicas mejoradas de extracción de oro y plata que aumentan la producción minera.",
+			"category": "economia",
+			"research_cost": 250,
+			"research_time": 15,
+			"required_technologies": ["comercio_regional"],
+			"required_resources": {
+				"dinero": 800,
+				"oro": 100
+			},
+			"effects": {
+				"mining_output": 1.5
+			},
+			"military_benefits": {},
+			"economic_benefits": {
+				"gold_production": 40,
+				"silver_production": 40,
+				"wealth_generation": 30
+			},
+			"diplomatic_benefits": {},
+			"icon_path": "res://Assets/Icons/Tech/mineria.png",
+			"era": "colonial",
+			"is_secret": false
+		},
+		{
+			"id": "agricultura_moderna",
+			"name": "Agricultura Moderna",
+			"description": "Introducción de nuevas técnicas agrícolas que mejoran la producción de alimentos.",
+			"category": "economia",
+			"research_cost": 180,
+			"research_time": 10,
+			"required_technologies": [],
+			"required_resources": {
+				"dinero": 300,
+				"comida": 200
+			},
+			"effects": {
+				"food_production": 1.4
+			},
+			"military_benefits": {
+				"unit_supply": 20
+			},
+			"economic_benefits": {
+				"population_growth": 15,
+				"food_surplus": 35,
+				"rural_income": 25
+			},
+			"diplomatic_benefits": {},
+			"icon_path": "res://Assets/Icons/Tech/agricultura.png",
+			"era": "colonial",
+			"is_secret": false
+		}
+	]
+}
