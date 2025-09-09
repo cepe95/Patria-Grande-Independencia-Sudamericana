@@ -440,6 +440,19 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_F5:
+				# Atajo rápido para guardar
+				save_game()
+				accept_event()
+			KEY_F9:
+				# Atajo rápido para mostrar menú de carga
+				show_load_game_menu()
+				accept_event()
+			KEY_S:
+				# Ctrl+S para guardar
+				if event.ctrl_pressed:
+					save_game()
+					accept_event()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 

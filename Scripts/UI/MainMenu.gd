@@ -54,16 +54,24 @@ func show_error_dialog(message: String):
 
 func _on_game_loaded(filename: String):
 	"""Callback cuando se carga una partida desde el menú principal"""
-	# Cargar el MainHUD y aplicar la partida cargada
-	var main_hud_scene = load("res://Scenes/UI/MainHUD.tscn")
-	if main_hud_scene:
-		var main_hud_instance = main_hud_scene.instantiate()
-		get_tree().change_scene_to_packed(main_hud_scene)
+	# Cambiar a la escena principal del juego
+	var test_main_hud_scene = load("res://Scenes/UI/TestMainHUD.tscn")
+	if test_main_hud_scene:
+		# Cambiar a la escena del juego
+		get_tree().change_scene_to_packed(test_main_hud_scene)
 		
-		# El MainHUD manejará la carga del archivo específico
-		# Nota: Esto requiere que el MainHUD tenga un método para cargar al inicio
-		if main_hud_instance.has_method("load_game_on_start"):
-			main_hud_instance.load_game_on_start(filename)
+		# Esperar a que la escena esté lista y luego cargar
+		await get_tree().process_frame
+		await get_tree().process_frame
+		
+		# Buscar el MainHUD en la nueva escena y cargar el juego
+		var main_hud = get_tree().current_scene.get_node_or_null("MainHUD")
+		if main_hud and main_hud.has_method("load_game_on_start"):
+			main_hud.load_game_on_start(filename)
+		elif main_hud and main_hud.has_method("load_game"):
+			main_hud.load_game(filename)
+		else:
+			show_error_dialog("No se pudo encontrar el MainHUD en la escena del juego")
 	else:
 		show_error_dialog("No se pudo cargar la escena principal del juego")
 
