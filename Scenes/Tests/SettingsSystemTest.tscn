@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2h2n0d7hn5r0"]
+
+[ext_resource type="Script" path="res://Scripts/Tests/SettingsSystemTest.gd" id="1_test"]
+
+[node name="SettingsTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_test")
+
+[node name="Instructions" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+offset_right = 600.0
+text = "Settings System Test Running...
+
+Manual Test Controls:
+- Enter: Test audio volume changes
+- Up Arrow: Test video settings
+- Down Arrow: Test save/load functionality"
+theme_override_font_sizes/font_size = 12

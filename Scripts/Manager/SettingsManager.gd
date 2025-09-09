@@ -153,12 +153,16 @@ func apply_audio_setting(key: String, value):
 	match key:
 		"music_volume":
 			# Convertir a decibeles y aplicar al bus de música
-			var db = linear_to_db(value)
-			AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), db)
+			var db = linear_to_db(value) if value > 0.0 else -80.0
+			var bus_index = AudioServer.get_bus_index("Music")
+			if bus_index >= 0:
+				AudioServer.set_bus_volume_db(bus_index, db)
 		"sfx_volume":
 			# Convertir a decibeles y aplicar al bus de efectos
-			var db = linear_to_db(value)
-			AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), db)
+			var db = linear_to_db(value) if value > 0.0 else -80.0
+			var bus_index = AudioServer.get_bus_index("SFX")
+			if bus_index >= 0:
+				AudioServer.set_bus_volume_db(bus_index, db)
 
 func apply_video_settings():
 	"""Aplica configuraciones de video"""
