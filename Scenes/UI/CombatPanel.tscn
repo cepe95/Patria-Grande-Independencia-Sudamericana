@@ -1,0 +1,136 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5q1d7mwqgfnl"]
+
+[ext_resource type="Script" path="res://Scripts/UI/CombatUI.gd" id="1_8j2xs"]
+
+[node name="CombatUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_8j2xs")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.7)
+
+[node name="CombatPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 300.0
+
+[node name="MainContainer" type="VBoxContainer" parent="CombatPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="TitleLabel" type="Label" parent="CombatPanel/MainContainer"]
+layout_mode = 2
+text = "COMBATE POR TURNOS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UnitsContainer" type="HBoxContainer" parent="CombatPanel/MainContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AttackerInfo" type="VBoxContainer" parent="CombatPanel/MainContainer/UnitsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameLabel" type="Label" parent="CombatPanel/MainContainer/UnitsContainer/AttackerInfo"]
+layout_mode = 2
+text = "Atacante"
+horizontal_alignment = 1
+
+[node name="IconContainer" type="HBoxContainer" parent="CombatPanel/MainContainer/UnitsContainer/AttackerInfo"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="CombatPanel/MainContainer/UnitsContainer/AttackerInfo/IconContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(64, 64)
+stretch_mode = 4
+
+[node name="StatsContainer" type="VBoxContainer" parent="CombatPanel/MainContainer/UnitsContainer/AttackerInfo"]
+layout_mode = 2
+
+[node name="VsLabel" type="Label" parent="CombatPanel/MainContainer/UnitsContainer"]
+layout_mode = 2
+text = "VS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DefenderInfo" type="VBoxContainer" parent="CombatPanel/MainContainer/UnitsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameLabel" type="Label" parent="CombatPanel/MainContainer/UnitsContainer/DefenderInfo"]
+layout_mode = 2
+text = "Defensor"
+horizontal_alignment = 1
+
+[node name="IconContainer" type="HBoxContainer" parent="CombatPanel/MainContainer/UnitsContainer/DefenderInfo"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="CombatPanel/MainContainer/UnitsContainer/DefenderInfo/IconContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(64, 64)
+stretch_mode = 4
+
+[node name="StatsContainer" type="VBoxContainer" parent="CombatPanel/MainContainer/UnitsContainer/DefenderInfo"]
+layout_mode = 2
+
+[node name="CombatLog" type="VBoxContainer" parent="CombatPanel/MainContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogTitle" type="Label" parent="CombatPanel/MainContainer/CombatLog"]
+layout_mode = 2
+text = "Log de Combate"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CombatPanel/MainContainer/CombatLog"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogContainer" type="VBoxContainer" parent="CombatPanel/MainContainer/CombatLog/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ActionButtons" type="HBoxContainer" parent="CombatPanel/MainContainer"]
+layout_mode = 2
+
+[node name="AttackButton" type="Button" parent="CombatPanel/MainContainer/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Atacar"
+
+[node name="DefendButton" type="Button" parent="CombatPanel/MainContainer/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Defender"
+
+[node name="RetreatButton" type="Button" parent="CombatPanel/MainContainer/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Retirarse"
+
+[node name="AutoButton" type="Button" parent="CombatPanel/MainContainer/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Auto"

@@ -10,6 +10,7 @@ extends Control
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
+@onready var combat_ui: Control = $UI/CombatUI
 
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
@@ -35,10 +36,15 @@ var selected_city: Node = null
 var current_resources: Dictionary = {}
 var current_turn: int = 1
 
+# Sistema de combate
+var combat_system: CombatSystem
+var units_in_conflict_zones: Dictionary = {}
+
 # === INICIALIZACIÓN ===
 func _ready():
 	print("✓ MainHUD inicializado")
 	setup_ui_connections()
+	initialize_combat_system()
 	# Esperar un frame para que el StrategicMap esté completamente inicializado
 	await get_tree().process_frame
 	setup_strategic_map_connections()
@@ -57,6 +63,24 @@ func setup_ui_connections():
 	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
+
+func initialize_combat_system():
+	"""Inicializa el sistema de combate"""
+	# Crear instancia del sistema de combate
+	combat_system = CombatSystem.new()
+	add_child(combat_system)
+	
+	# Conectar señales del sistema de combate
+	combat_system.combat_started.connect(_on_combat_started)
+	combat_system.combat_ended.connect(_on_combat_ended)
+	combat_system.turn_completed.connect(_on_combat_turn_completed)
+	
+	# Configurar UI de combate si existe
+	if combat_ui:
+		combat_ui.combat_action_selected.connect(_on_combat_action_selected)
+		combat_ui.combat_ended_by_player.connect(_on_combat_ended_by_player)
+	
+	print("✓ Sistema de combate inicializado")
 
 func setup_strategic_map_connections():
 	"""Conecta las señales del mapa estratégico"""
@@ -401,7 +425,10 @@ func _on_next_turn_pressed():
 	update_date_turn_display("", current_turn)
 	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Detectar oportunidades de combate
+	check_automatic_combats()
+	
+	# TODO: Aquí se procesarían otros eventos del turno
 	print("✓ Avanzando al turno: ", current_turn)
 
 func _on_pause_pressed():
@@ -458,9 +485,34 @@ func move_unit_to_position(unit: Node, target_position: Vector2):
 	add_event("Movimiento de unidad ordenado", "info")
 
 func start_battle(attacking_unit: Node, defending_unit: Node):
-	"""PLACEHOLDER: Iniciar batalla entre unidades"""
-	print("TODO: Implementar sistema de batalla")
-	add_event("¡Batalla iniciada!", "warning")
+	"""Iniciar batalla entre unidades"""
+	if not attacking_unit or not defending_unit:
+		print("⚠ Unidades inválidas para combate")
+		return
+	
+	var attacker_data = attacking_unit.get("data") if attacking_unit.has_method("get") else null
+	var defender_data = defending_unit.get("data") if defending_unit.has_method("get") else null
+	
+	if not attacker_data or not defender_data:
+		print("⚠ Datos de unidad no encontrados")
+		add_event("Error: No se pueden obtener datos de las unidades para combate", "error")
+		return
+	
+	if not combat_system.can_units_combat(attacker_data, defender_data):
+		add_event("Las unidades no pueden combatir (misma facción o inactivas)", "warning")
+		return
+	
+	print("⚔ Iniciando batalla entre %s y %s" % [attacker_data.nombre, defender_data.nombre])
+	
+	# Iniciar combate en el sistema
+	if combat_system.start_combat(attacker_data, defender_data):
+		add_event("¡Batalla iniciada entre %s y %s!" % [attacker_data.nombre, defender_data.nombre], "warning")
+		
+		# Mostrar UI de combate si está disponible
+		if combat_ui:
+			combat_ui.show_combat(attacker_data, defender_data, combat_system)
+	else:
+		add_event("No se pudo iniciar el combate", "error")
 
 func recruit_unit_in_city(city_name: String, unit_type: String):
 	"""PLACEHOLDER: Reclutar unidad en ciudad"""
@@ -491,3 +543,116 @@ func load_game():
 	"""PLACEHOLDER: Cargar partida"""
 	print("TODO: Implementar sistema de carga")
 	add_event("Partida cargada", "success")
+
+# === MÉTODOS DEL SISTEMA DE COMBATE ===
+
+func _on_combat_started(attacker: DivisionData, defender: DivisionData):
+	"""Callback cuando se inicia un combate"""
+	add_event("Combate iniciado: %s vs %s" % [attacker.nombre, defender.nombre], "warning")
+	print("⚔ Combate iniciado en HUD: %s vs %s" % [attacker.nombre, defender.nombre])
+
+func _on_combat_ended(result: CombatSystem.CombatResult):
+	"""Callback cuando termina un combate"""
+	var result_message = ""
+	match result.victory_type:
+		"defeat":
+			result_message = "%s derrotó completamente a %s" % [result.winner.nombre, result.loser.nombre]
+		"rout":
+			result_message = "%s puso en fuga a %s" % [result.winner.nombre, result.loser.nombre]
+		"withdrawal":
+			result_message = "%s se retiró del combate contra %s" % [result.loser.nombre, result.winner.nombre]
+		_:
+			result_message = "Combate entre %s y %s terminó de forma indecisa" % [result.winner.nombre, result.loser.nombre]
+	
+	add_event(result_message, "success")
+	add_event("Bajas: %s (%d), %s (%d)" % [
+		result.winner.nombre, result.attacker_casualties if result.winner == current_combat_attacker() else result.defender_casualties,
+		result.loser.nombre, result.defender_casualties if result.winner == current_combat_attacker() else result.attacker_casualties
+	], "info")
+	
+	# Actualizar listas de unidades
+	populate_units_list()
+	
+	print("🏁 Combate terminado en HUD: %s ganó" % result.winner.nombre)
+
+func _on_combat_turn_completed(turn_data: CombatSystem.CombatTurnData):
+	"""Callback cuando se completa un turno de combate"""
+	# La UI de combate maneja los detalles del turno
+	# Aquí solo registramos eventos importantes
+	if turn_data.attacker_losses > 0 or turn_data.defender_losses > 0:
+		add_event("Turno %d: Bajas en el combate" % turn_data.turn_number, "info")
+
+func _on_combat_action_selected(action: String):
+	"""Callback cuando el jugador selecciona una acción de combate"""
+	print("🎮 Acción de combate seleccionada: " + action)
+
+func _on_combat_ended_by_player():
+	"""Callback cuando el jugador termina el combate manualmente"""
+	add_event("Combate terminado por el jugador", "info")
+
+func current_combat_attacker() -> DivisionData:
+	"""Obtiene el atacante del combate actual"""
+	if combat_system and combat_system.is_combat_active():
+		var combat_info = combat_system.get_current_combat_info()
+		return combat_info.get("attacker", null)
+	return null
+
+func detect_combat_opportunities():
+	"""Detecta oportunidades de combate entre unidades enemigas"""
+	if not strategic_map:
+		return
+	
+	var units_container = strategic_map.get_node_or_null("UnitsContainer")
+	if not units_container:
+		return
+	
+	var units = units_container.get_children()
+	var conflict_detected = false
+	
+	# Buscar unidades enemigas en la misma posición
+	for i in range(units.size()):
+		for j in range(i + 1, units.size()):
+			var unit1 = units[i]
+			var unit2 = units[j]
+			
+			# Verificar si están en la misma posición (o muy cerca)
+			if unit1.global_position.distance_to(unit2.global_position) < 50: # 50 pixeles de tolerancia
+				var data1 = unit1.get("data")
+				var data2 = unit2.get("data")
+				
+				if data1 and data2 and data1.faccion != data2.faccion:
+					# Unidades enemigas encontradas en la misma zona
+					var conflict_key = "%s_%s" % [unit1.get_instance_id(), unit2.get_instance_id()]
+					
+					if not units_in_conflict_zones.has(conflict_key):
+						units_in_conflict_zones[conflict_key] = {
+							"unit1": unit1,
+							"unit2": unit2,
+							"detected_turn": current_turn
+						}
+						
+						add_event("¡Conflicto detectado! %s y %s se encuentran en la misma zona" % [data1.nombre, data2.nombre], "warning")
+						conflict_detected = true
+	
+	return conflict_detected
+
+func check_automatic_combats():
+	"""Verifica y ejecuta combates automáticos si es necesario"""
+	# Por ahora, solo detectamos conflictos
+	# En el futuro se podría agregar lógica para combates automáticos
+	detect_combat_opportunities()
+
+# === MÉTODOS PÚBLICOS PARA COMBATE ===
+
+func initiate_combat_between_units(unit1: Node, unit2: Node):
+	"""Inicia combate entre dos unidades específicas"""
+	if unit1 and unit2:
+		start_battle(unit1, unit2)
+
+func get_combat_system() -> CombatSystem:
+	"""Obtiene referencia al sistema de combate"""
+	return combat_system
+
+func is_combat_active() -> bool:
+	"""Verifica si hay un combate activo"""
+	return combat_system and combat_system.is_combat_active()

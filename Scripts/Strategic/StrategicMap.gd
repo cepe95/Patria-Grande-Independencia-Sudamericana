@@ -191,3 +191,71 @@ func actualizar_panel_subunidades_libres():
 
 func get_subunidades_libres() -> Array[UnitData]:
 	return subunidades_libres.duplicate()
+
+# === DETECCIÓN Y MANEJO DE COMBATE ===
+
+func check_for_combat_on_movement(moving_unit: Node):
+	"""Verifica si una unidad que se mueve entra en combate"""
+	if not moving_unit or not moving_unit.has_method("get"):
+		return
+	
+	var moving_data = moving_unit.get("data")
+	if not moving_data:
+		return
+	
+	# Buscar otras unidades en la misma posición
+	for child in units_container.get_children():
+		if child == moving_unit:
+			continue
+		
+		var other_data = child.get("data")
+		if not other_data:
+			continue
+		
+		# Verificar distancia
+		if moving_unit.global_position.distance_to(child.global_position) < 50:
+			# Verificar si son de facciones diferentes
+			if moving_data.faccion != other_data.faccion:
+				print("⚔ Conflicto detectado entre %s y %s" % [moving_data.nombre, other_data.nombre])
+				
+				# Solicitar combate al HUD principal
+				var main_hud = get_tree().current_scene.get_node_or_null("MainHUD")
+				if main_hud and main_hud.has_method("initiate_combat_between_units"):
+					main_hud.initiate_combat_between_units(moving_unit, child)
+				break
+
+func get_units_at_position(position: Vector2, tolerance: float = 50.0) -> Array:
+	"""Obtiene todas las unidades en una posición específica"""
+	var units_at_pos = []
+	
+	for child in units_container.get_children():
+		if child.global_position.distance_to(position) <= tolerance:
+			units_at_pos.append(child)
+	
+	return units_at_pos
+
+func get_hostile_units_in_range(unit: Node, range_pixels: float = 50.0) -> Array:
+	"""Obtiene unidades hostiles dentro del rango especificado"""
+	var hostile_units = []
+	
+	if not unit or not unit.has_method("get"):
+		return hostile_units
+	
+	var unit_data = unit.get("data")
+	if not unit_data:
+		return hostile_units
+	
+	for child in units_container.get_children():
+		if child == unit:
+			continue
+		
+		var other_data = child.get("data")
+		if not other_data:
+			continue
+		
+		# Verificar si es hostil y está en rango
+		if unit_data.faccion != other_data.faccion:
+			if unit.global_position.distance_to(child.global_position) <= range_pixels:
+				hostile_units.append(child)
+	
+	return hostile_units

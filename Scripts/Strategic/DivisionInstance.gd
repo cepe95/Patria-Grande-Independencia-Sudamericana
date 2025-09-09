@@ -64,6 +64,9 @@ func mostrar_panel_composicion():
 func mover_a(destino: Vector2):
 	var tween := create_tween()
 	tween.tween_property(self, "position", destino, 1.0).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
+	
+	# Verificar combate cuando se complete el movimiento
+	tween.finished.connect(_on_movement_finished)
 
 func _gui_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -103,3 +106,10 @@ func consumir_recursos(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	consumir_recursos(delta)
+
+func _on_movement_finished():
+	"""Callback cuando se completa el movimiento"""
+	# Notificar al mapa estratégico para verificar combate
+	var strategic_map = get_tree().current_scene.get_node_or_null("StrategicMap")
+	if strategic_map and strategic_map.has_method("check_for_combat_on_movement"):
+		strategic_map.check_for_combat_on_movement(self)
