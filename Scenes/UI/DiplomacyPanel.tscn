@@ -130,6 +130,6 @@ add_theme_font_size_override = 12
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="EventsList" type="VBoxContainer" parent="VBoxContainer/ContentContainer/DetailsPanel/VBoxContainer/EventsContainer/EventsScrollContainer"]
+[node name="EventsList" type="VBoxContainer" parent="VBoxContainer/ContentContainer/DetailsPanel/VBoxContainer/EventsContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
