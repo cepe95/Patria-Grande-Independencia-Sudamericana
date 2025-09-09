@@ -46,6 +46,18 @@ func _ready():
 	populate_city_unit_lists()
 	add_initial_events()
 
+func load_game_on_start(filename: String):
+	"""Carga una partida específica al iniciar el MainHUD
+	
+	Args:
+		filename: Nombre del archivo a cargar
+	"""
+	# Esperar a que todo esté inicializado
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	load_game(filename)
+
 func setup_ui_connections():
 	"""Conecta las señales de los elementos de la UI"""
 	# Botón de cerrar panel de detalles
@@ -406,7 +418,10 @@ func _on_next_turn_pressed():
 
 func _on_pause_pressed():
 	"""Callback para pausar el juego"""
-	pause_menu.visible = true
+	if pause_menu.has_method("show_pause_menu"):
+		pause_menu.show_pause_menu()
+	else:
+		pause_menu.visible = true
 	add_event("Juego pausado", "info")
 
 func _on_date_changed(new_date):
@@ -483,11 +498,87 @@ func show_technology_tree():
 	add_event("Investigación tecnológica solicitada", "info")
 
 func save_game():
-	"""PLACEHOLDER: Guardar partida"""
-	print("TODO: Implementar sistema de guardado")
-	add_event("Partida guardada", "success")
+	"""Guarda la partida actual usando el sistema de guardado"""
+	var save_manager = get_save_load_manager()
+	if not save_manager:
+		add_event("Error: No se pudo acceder al gestor de guardado", "error")
+		return
+	
+	# Crear estado del juego
+	var game_state = GameState.new()
+	game_state.set_from_main_hud(self)
+	
+	# Guardar usando el manager
+	var success = save_manager.save_game(game_state)
+	if success:
+		add_event("Partida guardada exitosamente", "success")
+	else:
+		add_event("Error al guardar la partida: " + save_manager.get_last_error(), "error")
 
-func load_game():
-	"""PLACEHOLDER: Cargar partida"""
-	print("TODO: Implementar sistema de carga")
-	add_event("Partida cargada", "success")
+func load_game(filename: String = ""):
+	"""Carga una partida específica o muestra el menú de carga
+	
+	Args:
+		filename: Archivo específico a cargar (opcional)
+	"""
+	if filename.is_empty():
+		# Mostrar menú de carga
+		show_load_game_menu()
+		return
+	
+	var save_manager = get_save_load_manager()
+	if not save_manager:
+		add_event("Error: No se pudo acceder al gestor de guardado", "error")
+		return
+	
+	# Cargar el archivo específico
+	var game_state = save_manager.load_game(filename)
+	if game_state:
+		apply_loaded_game_state(game_state)
+		add_event("Partida cargada exitosamente", "success")
+	else:
+		add_event("Error al cargar la partida: " + save_manager.get_last_error(), "error")
+
+func show_load_game_menu():
+	"""Muestra el menú de carga de partidas"""
+	var load_scene = load("res://Scenes/UI/LoadGame.tscn")
+	if load_scene:
+		var load_instance = load_scene.instantiate()
+		get_tree().current_scene.add_child(load_instance)
+		
+		# Conectar señales si el script de LoadGame las tiene
+		if load_instance.has_signal("game_loaded"):
+			load_instance.game_loaded.connect(_on_game_loaded_from_menu)
+		if load_instance.has_signal("load_cancelled"):
+			load_instance.load_cancelled.connect(_on_load_cancelled)
+	else:
+		add_event("Error: No se pudo cargar el menú de partidas guardadas", "error")
+
+func apply_loaded_game_state(game_state: GameState):
+	"""Aplica un estado de juego cargado al MainHUD actual
+	
+	Args:
+		game_state: El estado del juego a aplicar
+	"""
+	if not game_state:
+		add_event("Error: Estado de juego inválido", "error")
+		return
+	
+	# Aplicar el estado usando el método del GameState
+	game_state.apply_to_main_hud(self)
+	
+	add_event("Estado de juego restaurado - Turno " + str(game_state.current_turn), "success")
+
+func get_save_load_manager() -> SaveLoadManager:
+	"""Obtiene la instancia del SaveLoadManager autoloaded"""
+	return SaveLoadManager as SaveLoadManager
+
+# === CALLBACKS PARA EL MENÚ DE CARGA ===
+
+func _on_game_loaded_from_menu(filename: String):
+	"""Callback cuando se selecciona un archivo en el menú de carga"""
+	load_game(filename)
+
+func _on_load_cancelled():
+	"""Callback cuando se cancela la carga desde el menú"""
+	add_event("Carga de partida cancelada", "info")
