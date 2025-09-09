@@ -101,5 +101,36 @@ func consumir_recursos(delta: float) -> void:
 			if fac.recursos.has(recurso):
 				fac.recursos[recurso] -= cantidad
 
+func consumir_recursos_tick() -> void:
+	"""Consume recursos por tick (llamado cada segundo)"""
+	if not data:
+		return
+	
+	var fac := FactionManager.obtener_faccion(data.faccion)
+	if not fac:
+		return
+
+	if not data.unidades_componentes:
+		return
+
+	# Consumo base por tick para todas las unidades
+	var consumo_base_pan = data.cantidad_total * 0.1  # 0.1 pan por soldado por tick
+	var consumo_base_dinero = data.cantidad_total * 0.05  # 0.05 dinero por soldado por tick (mantenimiento)
+	
+	# Consumir recursos básicos
+	if fac.recursos.has("pan"):
+		fac.recursos["pan"] = max(0, fac.recursos["pan"] - consumo_base_pan)
+	if fac.recursos.has("dinero"):
+		fac.recursos["dinero"] = max(0, fac.recursos["dinero"] - consumo_base_dinero)
+	
+	# Consumo específico por tipo de unidad si están definidos
+	for unidad in data.unidades_componentes:
+		if not unidad or not unidad.consumo:
+			continue
+		for recurso in unidad.consumo.keys():
+			var cantidad: float = unidad.consumo[recurso] * unidad.cantidad * 1.0  # 1 segundo
+			if fac.recursos.has(recurso):
+				fac.recursos[recurso] = max(0, fac.recursos[recurso] - cantidad)
+
 func _process(delta: float) -> void:
 	consumir_recursos(delta)
