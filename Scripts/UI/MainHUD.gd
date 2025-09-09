@@ -139,6 +139,8 @@ func update_resource_display():
 
 func _on_resource_tick():
 	"""Callback ejecutado cada tick del timer de recursos"""
+	print("🔄 Tick de recursos ejecutado")
+	
 	# Actualizar producción de ciudades/pueblos
 	update_town_production()
 	
@@ -147,36 +149,77 @@ func _on_resource_tick():
 	
 	# Refrescar display de recursos
 	update_resource_display()
+	
+	# Debug: mostrar recursos actuales
+	var player_faction = FactionManager.obtener_faccion("Patriota")
+	if player_faction:
+		print("💰 Recursos actuales - Dinero: %d, Pan: %d, Munición: %d" % [
+			player_faction.recursos.get("dinero", 0),
+			player_faction.recursos.get("pan", 0), 
+			player_faction.recursos.get("municion", 0)
+		])
 
 func update_town_production():
 	"""Actualiza la producción de recursos de todos los pueblos controlados"""
 	if not strategic_map:
 		return
 		
-	# Buscar todos los pueblos en el mapa
-	var towns_container = strategic_map.get_node_or_null("TownsContainer")
-	if not towns_container:
-		# Buscar pueblos directamente en strategic_map si no hay contenedor
-		towns_container = strategic_map
+	# Buscar todos los pueblos en el mapa - probar diferentes ubicaciones
+	var towns_found = 0
 	
-	for child in towns_container.get_children():
-		if child.has_method("generar_recursos_tick"):
-			child.generar_recursos_tick()
+	# Buscar en TownsContainer
+	var towns_container = strategic_map.get_node_or_null("TownsContainer")
+	if towns_container:
+		for child in towns_container.get_children():
+			if child.has_method("generar_recursos_tick"):
+				child.generar_recursos_tick()
+				towns_found += 1
+	else:
+		# Buscar directamente en strategic_map y sus hijos
+		for child in strategic_map.get_children():
+			if child.has_method("generar_recursos_tick"):
+				child.generar_recursos_tick()
+				towns_found += 1
+			# También buscar en contenedores hijos
+			elif child.get_child_count() > 0:
+				for grandchild in child.get_children():
+					if grandchild.has_method("generar_recursos_tick"):
+						grandchild.generar_recursos_tick()
+						towns_found += 1
+	
+	if towns_found == 0:
+		print("⚠️ No se encontraron pueblos para generar recursos")
 
 func update_unit_consumption():
 	"""Actualiza el consumo de recursos de todas las unidades"""
 	if not strategic_map:
 		return
 		
-	# Buscar todas las unidades en el mapa
-	var units_container = strategic_map.get_node_or_null("UnitsContainer")
-	if not units_container:
-		# Buscar unidades directamente en strategic_map si no hay contenedor
-		units_container = strategic_map
+	# Buscar todas las unidades en el mapa - probar diferentes ubicaciones
+	var units_found = 0
 	
-	for child in units_container.get_children():
-		if child.has_method("consumir_recursos_tick"):
-			child.consumir_recursos_tick()
+	# Buscar en UnitsContainer
+	var units_container = strategic_map.get_node_or_null("UnitsContainer")
+	if units_container:
+		for child in units_container.get_children():
+			if child.has_method("consumir_recursos_tick"):
+				child.consumir_recursos_tick()
+				units_found += 1
+	else:
+		# Buscar directamente en strategic_map y sus hijos
+		for child in strategic_map.get_children():
+			if child.has_method("consumir_recursos_tick"):
+				child.consumir_recursos_tick()
+				units_found += 1
+			# También buscar en contenedores hijos
+			elif child.get_child_count() > 0:
+				for grandchild in child.get_children():
+					if grandchild.has_method("consumir_recursos_tick"):
+						grandchild.consumir_recursos_tick()
+						units_found += 1
+	
+	if units_found == 0:
+		print("⚠️ No se encontraron unidades para consumir recursos")
 
 func update_date_turn_display(date_text: String = "", turn: int = -1):
 	"""Actualiza la visualización de fecha y turno"""

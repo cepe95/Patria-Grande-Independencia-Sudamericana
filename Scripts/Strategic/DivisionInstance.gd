@@ -117,6 +117,8 @@ func consumir_recursos_tick() -> void:
 	var consumo_base_pan = data.cantidad_total * 0.1  # 0.1 pan por soldado por tick
 	var consumo_base_dinero = data.cantidad_total * 0.05  # 0.05 dinero por soldado por tick (mantenimiento)
 	
+	print("⚔️ %s consume recursos (soldados: %d)" % [data.nombre, data.cantidad_total])
+	
 	# Consumir recursos básicos
 	if fac.recursos.has("pan"):
 		fac.recursos["pan"] = max(0, fac.recursos["pan"] - consumo_base_pan)

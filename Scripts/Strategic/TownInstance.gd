@@ -47,6 +47,8 @@ func generar_recursos_tick():
 	# Generar recursos basados en la importancia del pueblo
 	var recursos_por_tick = town_data.importancia
 	
+	print("🏘️ %s genera recursos (importancia: %d)" % [town_data.nombre, town_data.importancia])
+	
 	# Agregar recursos básicos según el tipo de pueblo
 	match town_data.tipo:
 		"pueblo_pequeno":
