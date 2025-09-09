@@ -8,6 +8,11 @@ class_name UnitData
 @export var fusionable: bool = true
 @export var icono: Texture2D
 @export var cantidad: int = 100
+
+# Estadísticas adicionales
+@export var moral: int = 70
+@export var experiencia: int = 10
+
 @export var consumo : Dictionary = {
 	"Biblias": 0.01,
 	"Vino": 0.01,

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bf8jjcjx6a5xh"]
+[gd_scene load_steps=5 format=3 uid="uid://bf8jjcjx6a5xh"]
 
 [ext_resource type="Script" path="res://Scripts/UI/MainHUD.gd" id="1_main_hud"]
 [ext_resource type="PackedScene" uid="uid://de53dq1ddujpm" path="res://Scenes/Strategic/StrategicMap.tscn" id="2_strategic_map"]
 [ext_resource type="PackedScene" uid="uid://bjhqqwxvf8qwm" path="res://Scenes/UI/PauseMenu.tscn" id="3_pause_menu"]
+[ext_resource type="Script" path="res://Scripts/UI/DetailsPanel.gd" id="4_details_panel"]
 
 [node name="MainHUD" type="Control"]
 layout_mode = 3
@@ -137,6 +138,7 @@ offset_left = -350.0
 offset_top = 80.0
 grow_horizontal = 0
 grow_vertical = 2
+script = ExtResource("4_details_panel")
 
 [node name="Background" type="ColorRect" parent="UI/DetailsPanel"]
 layout_mode = 1

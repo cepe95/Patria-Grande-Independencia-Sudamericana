@@ -14,6 +14,9 @@ var edge_margin := 20
 var zoom_speed := 0.1
 var division_seleccionada = null
 
+# Límites del mapa para validación de movimiento
+var map_bounds := Rect2(-2500, -2500, 5000, 5000)
+
 # --- NUEVO: Lista global de subunidades libres ---
 var subunidades_libres: Array[UnitData] = []
 
@@ -86,15 +89,72 @@ func set_division_seleccionada(nueva):
 
 func instanciar_division(data: DivisionData, posicion: Vector2) -> void:
 	var instancia := DivisionInstance.instantiate()
-	instancia.position = posicion
+	instancia.global_position = posicion
 	units_container.add_child(instancia)
 	instancia.set_button_data(data)
-	# Conectar señal de selección (Godot 4)
+	
+	# Conectar señales de selección y movimiento (Godot 4)
 	instancia.division_seleccionada.connect(_on_division_seleccionada)
+	instancia.division_movida.connect(_on_division_movida)
+	instancia.solicitar_accion.connect(_on_solicitar_accion)
+	
+	print("✅ División instanciada:", data.nombre, "en posición:", posicion)
 
 func _on_division_seleccionada(div_instancia):
 	print("📡 Señal recibida de:", div_instancia.data.nombre)
 	set_division_seleccionada(div_instancia)
+	
+	# Notificar al MainHUD si existe
+	var main_hud = get_tree().current_scene.get_node_or_null("MainHUD")
+	if not main_hud:
+		main_hud = get_parent()
+	if main_hud and main_hud.has_method("_on_unit_selected"):
+		main_hud._on_unit_selected(div_instancia)
+
+func _on_division_movida(div_instancia, nueva_posicion: Vector2):
+	"""Callback cuando una división ha sido movida"""
+	print("🚀 División movida:", div_instancia.data.nombre, "a:", nueva_posicion)
+	
+	# Actualizar datos de posición si la división los tiene
+	if div_instancia.data.has("posicion_inicial"):
+		div_instancia.data.posicion_inicial = nueva_posicion
+	
+	# Notificar al MainHUD sobre el movimiento
+	var main_hud = get_tree().current_scene.get_node_or_null("MainHUD")
+	if not main_hud:
+		main_hud = get_parent()
+	if main_hud and main_hud.has_method("add_event"):
+		main_hud.add_event("División %s movida a nueva posición" % div_instancia.data.nombre, "info")
+
+func _on_solicitar_accion(div_instancia, tipo_accion: String):
+	"""Callback para manejar solicitudes de acciones futuras (atacar, fortificar, etc.)"""
+	print("⚡ Acción solicitada:", tipo_accion, "para división:", div_instancia.data.nombre)
+	
+	match tipo_accion:
+		"menu_contextual":
+			# TODO: Mostrar menú contextual
+			print("📋 Menú contextual para:", div_instancia.data.nombre)
+		"atacar":
+			# TODO: Iniciar ataque
+			print("⚔️ Preparando ataque con:", div_instancia.data.nombre)
+		"fortificar":
+			# TODO: Fortificar posición
+			print("🏰 Fortificando posición de:", div_instancia.data.nombre)
+		"mover":
+			# TODO: Modo de movimiento especial
+			print("🎯 Modo de movimiento para:", div_instancia.data.nombre)
+
+func validar_posicion_unidad(posicion: Vector2) -> bool:
+	"""Valida si una posición es válida para colocar una unidad"""
+	# Verificar límites del mapa
+	if not map_bounds.has_point(posicion):
+		return false
+	
+	# TODO: Verificar colisiones con otras unidades
+	# TODO: Verificar terreno válido
+	# TODO: Verificar zonas restringidas
+	
+	return true
 
 # ⬇️ Función para instanciar mapas
 func instance_map(info: Dictionary, _position: Vector2) -> Node2D:

@@ -21,10 +21,6 @@ extends Control
 @onready var cities_list: VBoxContainer = $UI/CityUnitListPanel/VBoxContainer/TabContainer/Ciudades/CitiesList
 @onready var units_list: VBoxContainer = $UI/CityUnitListPanel/VBoxContainer/TabContainer/Unidades/UnitsList
 
-@onready var details_title: Label = $UI/DetailsPanel/VBoxContainer/HeaderContainer/TitleLabel
-@onready var details_content: VBoxContainer = $UI/DetailsPanel/VBoxContainer/ContentContainer/DetailsContent
-@onready var close_details_button: Button = $UI/DetailsPanel/VBoxContainer/HeaderContainer/CloseButton
-
 @onready var events_log: VBoxContainer = $UI/EventPanel/VBoxContainer/EventsContainer/EventsList/EventsLog
 @onready var next_turn_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/NextTurnButton
 @onready var pause_button: Button = $UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons/PauseButton
@@ -48,8 +44,9 @@ func _ready():
 
 func setup_ui_connections():
 	"""Conecta las señales de los elementos de la UI"""
-	# Botón de cerrar panel de detalles
-	close_details_button.pressed.connect(_on_close_details_pressed)
+	# Conectar el panel de detalles mejorado
+	if details_panel and details_panel.has_signal("panel_closed"):
+		details_panel.panel_closed.connect(_on_close_details_pressed)
 	
 	# Botones de acciones rápidas
 	next_turn_button.pressed.connect(_on_next_turn_pressed)
@@ -261,37 +258,42 @@ func create_list_entry(name: String, type: String, faction: String, entry_type: 
 
 # === PANEL DE DETALLES ===
 func show_details(title: String, content_data: Dictionary):
-	"""Muestra el panel de detalles con la información proporcionada"""
-	details_title.text = title
-	
-	# Limpiar contenido anterior
-	for child in details_content.get_children():
-		child.queue_free()
-	
-	# Agregar nuevo contenido
-	for key in content_data:
-		var info_line = HBoxContainer.new()
-		
-		var key_label = Label.new()
-		key_label.text = str(key) + ":"
-		key_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		key_label.add_theme_font_size_override("font_size", 12)
-		
-		var value_label = Label.new()
-		value_label.text = str(content_data[key])
-		value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		value_label.add_theme_font_size_override("font_size", 12)
-		
-		info_line.add_child(key_label)
-		info_line.add_child(value_label)
-		details_content.add_child(info_line)
-	
+	"""Muestra el panel de detalles con la información proporcionada (fallback para compatibilidad)"""
+	if details_panel and details_panel.has_method("mostrar_detalles_genericos"):
+		details_panel.mostrar_detalles_genericos(title, content_data)
+	else:
+		# Método legacy
+		show_details_legacy(title, content_data)
+
+func show_details_legacy(title: String, content_data: Dictionary):
+	"""Método legacy para mostrar detalles (solo si no está disponible el nuevo sistema)"""
+	print("⚠️ Usando método legacy para mostrar detalles:", title)
 	details_panel.visible = true
+
+func show_division_details(division_data: DivisionData):
+	"""Muestra los detalles específicos de una división"""
+	if details_panel and details_panel.has_method("mostrar_detalles_division"):
+		details_panel.mostrar_detalles_division(division_data)
+		print("✅ Mostrando detalles de división:", division_data.nombre)
+	else:
+		# Fallback al método legacy
+		var details = {
+			"Nombre": division_data.get("nombre", "Desconocido"),
+			"Facción": division_data.get("faccion", "Neutral"),
+			"Rama Principal": division_data.get("rama_principal", "Desconocida"),
+			"Cantidad Total": division_data.get("cantidad_total", 0),
+			"Movilidad": division_data.get("movilidad", 0),
+			"Moral": division_data.get("moral", 0),
+			"Experiencia": division_data.get("experiencia", 0)
+		}
+		show_details("División: " + division_data.get("nombre", "Desconocida"), details)
 
 func hide_details():
 	"""Oculta el panel de detalles"""
-	details_panel.visible = false
+	if details_panel and details_panel.has_method("ocultar"):
+		details_panel.ocultar()
+	else:
+		details_panel.visible = false
 	selected_unit = null
 	selected_city = null
 
@@ -348,17 +350,11 @@ func _on_unit_selected(unit_node: Node):
 	
 	var unit_data = unit_node.get("data")
 	if unit_data:
-		var details = {
-			"Nombre": unit_data.get("nombre", "Desconocido"),
-			"Facción": unit_data.get("faccion", "Neutral"),
-			"Rama Principal": unit_data.get("rama_principal", "Desconocida"),
-			"Cantidad Total": unit_data.get("cantidad_total", 0),
-			"Movilidad": unit_data.get("movilidad", 0),
-			"Moral": unit_data.get("moral", 0),
-			"Experiencia": unit_data.get("experiencia", 0)
-		}
-		show_details("División: " + unit_data.get("nombre", "Desconocida"), details)
+		# Usar el nuevo sistema de detalles para divisiones
+		show_division_details(unit_data)
 		add_event("División seleccionada: " + unit_data.get("nombre", "Desconocida"), "info")
+	else:
+		add_event("Unidad seleccionada sin datos", "warning")
 
 func _on_list_entry_selected(entry_type: String, name: String, reference_node: Node):
 	"""Callback cuando se selecciona una entrada de las listas"""

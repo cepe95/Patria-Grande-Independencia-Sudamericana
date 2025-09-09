@@ -1,9 +1,17 @@
 extends Control
 
 signal division_seleccionada(division)
+signal division_movida(division, nueva_posicion)
+signal solicitar_accion(division, tipo_accion)
 
 var data: DivisionData = null
 var detail: DivisionData = null
+
+# Variables para manejo de movimiento
+var is_dragging: bool = false
+var drag_offset: Vector2 = Vector2.ZERO
+var original_position: Vector2 = Vector2.ZERO
+var is_selected: bool = false
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 @onready var label: Label = get_node_or_null("Label")
@@ -62,18 +70,88 @@ func mostrar_panel_composicion():
 		panel.mostrar_composicion(data)
 
 func mover_a(destino: Vector2):
-	var tween := create_tween()
-	tween.tween_property(self, "position", destino, 1.0).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
+	"""Mueve la división a un destino específico con animación"""
+	if validar_posicion(destino):
+		var tween := create_tween()
+		tween.tween_property(self, "global_position", destino, 1.0).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
+		emit_signal("division_movida", self, destino)
+	else:
+		print("❌ No se puede mover a la posición:", destino)
+
+func obtener_posicion() -> Vector2:
+	"""Obtiene la posición actual de la división"""
+	return global_position
+
+func obtener_datos() -> DivisionData:
+	"""Obtiene los datos de la división"""
+	return data
 
 func _gui_input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		print("✔ División clickeada:", data.nombre)
-		emit_signal("division_seleccionada", self)
-		resaltar_seleccion(true)
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				# Inicio del arrastre
+				print("✔ División clickeada:", data.nombre)
+				emit_signal("division_seleccionada", self)
+				resaltar_seleccion(true)
+				
+				# Preparar para arrastre
+				is_dragging = true
+				drag_offset = global_position - get_global_mouse_position()
+				original_position = global_position
+				
+			else:
+				# Fin del arrastre
+				if is_dragging:
+					is_dragging = false
+					var nueva_posicion = global_position
+					
+					# Validar posición con el mapa estratégico
+					if validar_posicion(nueva_posicion):
+						print("✅ División movida a:", nueva_posicion)
+						emit_signal("division_movida", self, nueva_posicion)
+					else:
+						# Revertir a posición original si no es válida
+						print("❌ Movimiento inválido, revirtiendo")
+						global_position = original_position
+		
+		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			# Menú contextual para acciones futuras
+			if is_selected:
+				mostrar_menu_acciones()
+	
+	elif event is InputEventMouseMotion and is_dragging:
+		# Actualizar posición durante el arrastre
+		global_position = get_global_mouse_position() + drag_offset
+
+func validar_posicion(posicion: Vector2) -> bool:
+	"""Valida si la posición está dentro de los límites del mapa"""
+	var strategic_map = get_tree().current_scene.get_node_or_null("StrategicMap")
+	if not strategic_map:
+		strategic_map = get_tree().current_scene
+	
+	if strategic_map and strategic_map.has_method("validar_posicion_unidad"):
+		return strategic_map.validar_posicion_unidad(posicion)
+	
+	# Validación básica por defecto (límites amplios)
+	return posicion.x > -2000 and posicion.x < 2000 and posicion.y > -2000 and posicion.y < 2000
+
+func mostrar_menu_acciones():
+	"""Muestra un menú contextual para acciones futuras (atacar, fortificar, etc.)"""
+	print("🎯 Menú de acciones para:", data.nombre)
+	# TODO: Implementar menú contextual
+	# Emitir señales para diferentes acciones
+	emit_signal("solicitar_accion", self, "menu_contextual")
 
 func resaltar_seleccion(activo: bool):
+	is_selected = activo
 	if activo:
 		self.modulate = Color(0.5, 0.5, 1) # Azul
+		# Agregar un efecto visual opcional
+		var tween = create_tween()
+		tween.set_loops(2)
+		tween.tween_property(self, "scale", Vector2(1.1, 1.1), 0.1)
+		tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
 	else:
 		self.modulate = Color(1, 1, 1)   # Normal
 
