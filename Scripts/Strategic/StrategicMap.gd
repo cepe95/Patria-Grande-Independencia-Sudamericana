@@ -72,6 +72,12 @@ func _ready():
 	game_clock.date_changed.connect(_on_game_clock_date_changed)
 	# Muestra la fecha inicial
 	date_label.text = game_clock.current_date.as_string()
+	
+	# Crear pueblos de prueba para el sistema de reclutamiento
+	crear_pueblos_prueba()
+	
+	# Conectar señales de pueblos
+	call_deferred("conectar_señales_pueblos")
 
 func _on_game_clock_date_changed(new_date):
 	date_label.text = new_date.as_string()
@@ -89,6 +95,8 @@ func instanciar_division(data: DivisionData, posicion: Vector2) -> void:
 	instancia.position = posicion
 	units_container.add_child(instancia)
 	instancia.set_button_data(data)
+	# Agregar al grupo "unidades" para detección por pueblos
+	instancia.add_to_group("unidades")
 	# Conectar señal de selección (Godot 4)
 	instancia.division_seleccionada.connect(_on_division_seleccionada)
 
@@ -191,3 +199,81 @@ func actualizar_panel_subunidades_libres():
 
 func get_subunidades_libres() -> Array[UnitData]:
 	return subunidades_libres.duplicate()
+
+# -------------------------------
+# GESTIÓN DE RECLUTAMIENTO
+# -------------------------------
+
+# -------------------------------
+# GESTIÓN DE RECLUTAMIENTO
+# -------------------------------
+
+func crear_pueblos_prueba():
+	"""Crea algunos pueblos de prueba para el sistema de reclutamiento"""
+	const TownInstance = preload("res://Scenes/Strategic/TownInstance.tscn")
+	
+	# Pueblo cerca de la división patriota
+	var pueblo1_data = TownData.new()
+	pueblo1_data.nombre = "Villa Independencia"
+	pueblo1_data.tipo = "villa"
+	pueblo1_data.importancia = 2
+	pueblo1_data.estado = "neutral"
+	
+	var pueblo1 = TownInstance.instantiate()
+	pueblo1.position = Vector2(-100, -300)  # Cerca de la división patriota
+	pueblo1.set_data(pueblo1_data)
+	pueblo1.configurar_por_tipo()
+	add_child(pueblo1)
+	
+	# Ciudad mediana cerca de la división realista
+	var pueblo2_data = TownData.new()
+	pueblo2_data.nombre = "Ciudad Real"
+	pueblo2_data.tipo = "ciudad_mediana"
+	pueblo2_data.importancia = 3
+	pueblo2_data.estado = "neutral"
+	
+	var pueblo2 = TownInstance.instantiate()
+	pueblo2.position = Vector2(250, 300)  # Cerca de la división realista
+	pueblo2.set_data(pueblo2_data)
+	pueblo2.configurar_por_tipo()
+	add_child(pueblo2)
+	
+	# Capital en el centro del mapa
+	var capital_data = TownData.new()
+	capital_data.nombre = "Capital del Virreinato"
+	capital_data.tipo = "capital"
+	capital_data.importancia = 5
+	capital_data.estado = "neutral"
+	
+	var capital = TownInstance.instantiate()
+	capital.position = Vector2(0, 0)  # Centro del mapa
+	capital.set_data(capital_data)
+	capital.configurar_por_tipo()
+	add_child(capital)
+
+func conectar_señales_pueblos():
+	"""Conecta las señales de todos los pueblos en el mapa para reclutamiento"""
+	var towns = get_tree().get_nodes_in_group("towns")
+	for town in towns:
+		if town.has_signal("division_en_pueblo"):
+			if not town.division_en_pueblo.is_connected(_on_division_en_pueblo):
+				town.division_en_pueblo.connect(_on_division_en_pueblo)
+		if town.has_signal("division_sale_pueblo"):
+			if not town.division_sale_pueblo.is_connected(_on_division_sale_pueblo):
+				town.division_sale_pueblo.connect(_on_division_sale_pueblo)
+
+func _on_division_en_pueblo(division, town):
+	"""Callback cuando una división llega a un pueblo"""
+	print("🏘️ División", division.data.nombre, "puede reclutar en", town.town_data.nombre)
+	# Notificar al MainHUD para mostrar opciones de reclutamiento
+	var main_hud = get_node("../")  # MainHUD es el padre de StrategicMap
+	if main_hud and main_hud.has_method("habilitar_reclutamiento"):
+		main_hud.habilitar_reclutamiento(division, town)
+
+func _on_division_sale_pueblo(division, town):
+	"""Callback cuando una división sale de un pueblo"""
+	print("🚶 División", division.data.nombre, "ya no puede reclutar en", town.town_data.nombre)
+	# Notificar al MainHUD para ocultar opciones de reclutamiento
+	var main_hud = get_node("../")  # MainHUD es el padre de StrategicMap
+	if main_hud and main_hud.has_method("deshabilitar_reclutamiento"):
+		main_hud.deshabilitar_reclutamiento(division, town)

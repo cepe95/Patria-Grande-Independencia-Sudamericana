@@ -359,6 +359,21 @@ func _on_unit_selected(unit_node: Node):
 		}
 		show_details("División: " + unit_data.get("nombre", "Desconocida"), details)
 		add_event("División seleccionada: " + unit_data.get("nombre", "Desconocida"), "info")
+		
+		# Verificar si la división está en un pueblo para mostrar opciones de reclutamiento
+		verificar_reclutamiento_division(unit_node)
+
+func verificar_reclutamiento_division(division: Node):
+	"""Verifica si la división seleccionada puede reclutar en algún pueblo"""
+	# Buscar todos los pueblos y verificar si esta división está en uno
+	var towns = get_tree().get_nodes_in_group("towns")
+	for town in towns:
+		if town.divisiones_en_pueblo.has(division):
+			habilitar_reclutamiento(division, town)
+			return
+	
+	# Si no está en ningún pueblo, deshabilitar reclutamiento
+	deshabilitar_reclutamiento(division, null)
 
 func _on_list_entry_selected(entry_type: String, name: String, reference_node: Node):
 	"""Callback cuando se selecciona una entrada de las listas"""
@@ -481,6 +496,145 @@ func show_technology_tree():
 	"""PLACEHOLDER: Mostrar árbol de tecnologías"""
 	print("TODO: Implementar árbol de tecnologías")
 	add_event("Investigación tecnológica solicitada", "info")
+
+# === SISTEMA DE RECLUTAMIENTO ===
+var division_actual_reclutamiento: Node = null
+var pueblo_actual_reclutamiento: Node = null
+var boton_reclutar: Button = null
+
+func habilitar_reclutamiento(division: Node, town: Node):
+	"""Habilita el reclutamiento cuando una división llega a un pueblo"""
+	# Solo mostrar el botón si la división está seleccionada
+	if division == selected_unit:
+		division_actual_reclutamiento = division
+		pueblo_actual_reclutamiento = town
+		mostrar_boton_reclutamiento()
+
+func deshabilitar_reclutamiento(division: Node, town: Node):
+	"""Deshabilita el reclutamiento cuando una división sale del pueblo"""
+	if division == division_actual_reclutamiento:
+		division_actual_reclutamiento = null
+		pueblo_actual_reclutamiento = null
+		ocultar_boton_reclutamiento()
+
+func mostrar_boton_reclutamiento():
+	"""Muestra el botón de reclutamiento en el DetailsPanel"""
+	if not boton_reclutar:
+		crear_boton_reclutamiento()
+	
+	if boton_reclutar and pueblo_actual_reclutamiento:
+		boton_reclutar.visible = true
+		boton_reclutar.text = "Reclutar en %s" % pueblo_actual_reclutamiento.town_data.nombre
+
+func ocultar_boton_reclutamiento():
+	"""Oculta el botón de reclutamiento"""
+	if boton_reclutar:
+		boton_reclutar.visible = false
+
+func crear_boton_reclutamiento():
+	"""Crea el botón de reclutamiento en el DetailsPanel"""
+	var details_content = details_panel.get_node_or_null("VBoxContainer/ContentContainer/DetailsContent")
+	if details_content:
+		boton_reclutar = Button.new()
+		boton_reclutar.text = "Reclutar Unidades"
+		boton_reclutar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		boton_reclutar.pressed.connect(_on_boton_reclutar_pressed)
+		boton_reclutar.visible = false
+		details_content.add_child(boton_reclutar)
+
+func _on_boton_reclutar_pressed():
+	"""Callback cuando se presiona el botón de reclutamiento"""
+	if division_actual_reclutamiento and pueblo_actual_reclutamiento:
+		mostrar_menu_reclutamiento()
+
+func mostrar_menu_reclutamiento():
+	"""Muestra el menú de selección de unidades para reclutar"""
+	var unidades_disponibles = pueblo_actual_reclutamiento.obtener_unidades_reclutables()
+	
+	if unidades_disponibles.size() == 0:
+		add_event("No hay unidades disponibles para reclutar en " + pueblo_actual_reclutamiento.town_data.nombre, "warning")
+		return
+	
+	crear_dialogo_reclutamiento(unidades_disponibles)
+
+func crear_dialogo_reclutamiento(unidades_disponibles: Array):
+	"""Crea un diálogo para seleccionar unidades a reclutar"""
+	# Crear ventana emergente
+	var dialogo = AcceptDialog.new()
+	dialogo.title = "Reclutamiento en " + pueblo_actual_reclutamiento.town_data.nombre
+	dialogo.size = Vector2(400, 300)
+	
+	# Contenedor principal
+	var vbox = VBoxContainer.new()
+	dialogo.add_child(vbox)
+	
+	# Etiqueta informativa
+	var label_info = Label.new()
+	label_info.text = "Selecciona las unidades a reclutar:"
+	label_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(label_info)
+	
+	# Lista de unidades disponibles
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_min_size = Vector2(0, 200)
+	vbox.add_child(scroll)
+	
+	var lista_unidades = VBoxContainer.new()
+	scroll.add_child(lista_unidades)
+	
+	# Crear entrada para cada unidad disponible
+	for unidad in unidades_disponibles:
+		var hbox = HBoxContainer.new()
+		lista_unidades.add_child(hbox)
+		
+		# Icono de la unidad
+		var icon = TextureRect.new()
+		icon.texture = unidad.icono if unidad.icono else null
+		icon.custom_min_size = Vector2(32, 32)
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		hbox.add_child(icon)
+		
+		# Información de la unidad
+		var info_label = Label.new()
+		info_label.text = "%s (Tamaño: %d)" % [unidad.nombre, unidad.tamaño]
+		info_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hbox.add_child(info_label)
+		
+		# Botón para reclutar
+		var btn_reclutar = Button.new()
+		btn_reclutar.text = "Reclutar"
+		btn_reclutar.pressed.connect(func(): _reclutar_unidad(unidad, dialogo))
+		hbox.add_child(btn_reclutar)
+	
+	# Mostrar el diálogo
+	get_tree().current_scene.add_child(dialogo)
+	dialogo.popup_centered()
+
+func _reclutar_unidad(unidad_data: UnitData, dialogo: AcceptDialog):
+	"""Recluta una unidad específica y la agrega a la división"""
+	if division_actual_reclutamiento and division_actual_reclutamiento.data:
+		# Crear una copia de la unidad con valores predeterminados para moral y experiencia
+		var nueva_unidad = unidad_data.duplicate()
+		if not nueva_unidad.get("moral"):
+			nueva_unidad.moral = 50  # Moral inicial
+		if not nueva_unidad.get("experiencia"):
+			nueva_unidad.experiencia = 0  # Sin experiencia inicial
+		
+		# Agregar la unidad a la división
+		division_actual_reclutamiento.data.unidades_componentes.append(nueva_unidad)
+		division_actual_reclutamiento.data.cantidad_total += nueva_unidad.tamaño
+		
+		# Actualizar la visualización de la división
+		division_actual_reclutamiento.mostrar_composicion_unidades()
+		
+		# Registrar el evento
+		add_event("Reclutada %s en %s" % [nueva_unidad.nombre, pueblo_actual_reclutamiento.town_data.nombre], "success")
+		
+		# Cerrar el diálogo
+		dialogo.queue_free()
+		
+		print("✅ Unidad reclutada:", nueva_unidad.nombre, "agregada a", division_actual_reclutamiento.data.nombre)
 
 func save_game():
 	"""PLACEHOLDER: Guardar partida"""
