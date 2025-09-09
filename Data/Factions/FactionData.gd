@@ -41,6 +41,6 @@ class_name FactionData
 }
 
 # Tecnologías
-@export var tecnologias_completadas: Array[String] = []
+@export var tecnologias_completadas: Array = []
 @export var investigacion_actual: String = ""  # ID de tecnología en investigación
 @export var puntos_investigacion_base: int = 10  # Puntos por turno base

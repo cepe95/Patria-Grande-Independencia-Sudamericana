@@ -90,6 +90,19 @@ func create_technology_buttons():
 	"""Crea los botones para cada tecnología"""
 	var technologies = technology_manager.get_all_technologies()
 	
+	# Calcular el tamaño mínimo necesario para el contenedor
+	var max_x = 0
+	var max_y = 0
+	
+	for tech in technologies:
+		max_x = max(max_x, tech.posicion_x)
+		max_y = max(max_y, tech.posicion_y)
+	
+	# Establecer el tamaño mínimo del contenedor del árbol
+	var min_width = TREE_MARGIN * 2 + (max_x + 1) * TECH_SPACING_X
+	var min_height = TREE_MARGIN * 2 + (max_y + 1) * TECH_SPACING_Y
+	tree_container.custom_min_size = Vector2(min_width, min_height)
+	
 	for tech in technologies:
 		create_technology_button(tech)
 

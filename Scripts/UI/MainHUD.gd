@@ -360,6 +360,7 @@ func add_initial_events():
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
 	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
+	add_event("Presiona T para abrir el árbol tecnológico", "info")
 
 # === SEÑALES Y CALLBACKS ===
 func _on_unit_selected(unit_node: Node):
@@ -509,10 +510,12 @@ func show_diplomacy_panel():
 func show_technology_tree():
 	"""Muestra el árbol de tecnologías"""
 	if technology_panel and technology_manager:
+		print("✓ Abriendo árbol tecnológico")
 		technology_panel.set_current_faction("Patriota")  # Por ahora usar facción fija
 		technology_panel.show_panel()
 		add_event("Árbol tecnológico abierto", "info")
 	else:
+		print("⚠ Sistema de tecnologías no disponible - Panel: ", technology_panel != null, " Manager: ", technology_manager != null)
 		add_event("Sistema de tecnologías no disponible", "error")
 
 func save_game():

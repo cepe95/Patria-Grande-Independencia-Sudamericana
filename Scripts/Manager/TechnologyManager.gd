@@ -9,7 +9,7 @@ signal research_progress_changed(technology: TechnologyData, progress: float)
 
 # Todas las tecnologías del juego
 var all_technologies: Dictionary = {}
-var technology_tree_levels: Array[Array] = []
+var technology_tree_levels: Array = []
 
 # Estado actual de investigación
 var current_research: TechnologyData = null
@@ -17,8 +17,10 @@ var faction_research_points: Dictionary = {} # Por facción
 var faction_completed_technologies: Dictionary = {} # Por facción
 
 func _ready():
+	print("✓ TechnologyManager inicializado")
 	load_technologies()
 	setup_technology_tree()
+	print("✓ Tecnologías cargadas: ", all_technologies.size())
 
 func load_technologies():
 	"""Carga todas las tecnologías desde archivos de configuración"""
@@ -161,7 +163,7 @@ func setup_technology_tree():
 	for tech in all_technologies.values():
 		technology_tree_levels[tech.nivel_arbol].append(tech)
 
-func get_available_technologies(faction_name: String) -> Array[TechnologyData]:
+func get_available_technologies(faction_name: String) -> Array:
 	"""Obtiene las tecnologías disponibles para investigar por una facción"""
 	var completed = get_completed_technologies(faction_name)
 	var available = []
@@ -172,7 +174,7 @@ func get_available_technologies(faction_name: String) -> Array[TechnologyData]:
 	
 	return available
 
-func get_completed_technologies(faction_name: String) -> Array[String]:
+func get_completed_technologies(faction_name: String) -> Array:
 	"""Obtiene los IDs de tecnologías completadas por una facción"""
 	if not faction_name in faction_completed_technologies:
 		faction_completed_technologies[faction_name] = []
@@ -304,11 +306,11 @@ func get_technology_by_id(id: String) -> TechnologyData:
 	"""Obtiene una tecnología por su ID"""
 	return all_technologies.get(id, null)
 
-func get_all_technologies() -> Array[TechnologyData]:
+func get_all_technologies() -> Array:
 	"""Obtiene todas las tecnologías"""
 	return all_technologies.values()
 
-func get_technologies_by_level(level: int) -> Array[TechnologyData]:
+func get_technologies_by_level(level: int) -> Array:
 	"""Obtiene tecnologías de un nivel específico del árbol"""
 	if level < 0 or level >= technology_tree_levels.size():
 		return []

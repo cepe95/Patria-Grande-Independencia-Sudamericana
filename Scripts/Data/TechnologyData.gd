@@ -9,7 +9,7 @@ class_name TechnologyData
 @export var categoria: String = "" # militar, economia, cultura, etc.
 
 # Requisitos y costos
-@export var prerequisitos: Array[String] = [] # IDs de tecnologías requeridas
+@export var prerequisitos: Array = [] # IDs de tecnologías requeridas
 @export var costo_investigacion: int = 100 # Puntos de investigación necesarios
 @export var tiempo_turnos: int = 5 # Turnos mínimos de investigación
 @export var recursos_requeridos: Dictionary = {} # Recursos adicionales necesarios
@@ -22,16 +22,16 @@ class_name TechnologyData
 
 # Efectos al completar
 @export var bonificaciones: Dictionary = {} # Modificadores que otorga
-@export var unidades_desbloqueadas: Array[String] = [] # Nuevas unidades disponibles
-@export var edificios_desbloqueados: Array[String] = [] # Nuevos edificios disponibles
-@export var mecanicas_desbloqueadas: Array[String] = [] # Nuevas mecánicas del juego
+@export var unidades_desbloqueadas: Array = [] # Nuevas unidades disponibles
+@export var edificios_desbloqueados: Array = [] # Nuevos edificios disponibles
+@export var mecanicas_desbloqueadas: Array = [] # Nuevas mecánicas del juego
 
 # Posición en el árbol (para UI)
 @export var posicion_x: int = 0
 @export var posicion_y: int = 0
 @export var nivel_arbol: int = 0 # Nivel en el árbol tecnológico
 
-func puede_ser_investigada(tecnologias_completadas: Array[String]) -> bool:
+func puede_ser_investigada(tecnologias_completadas: Array) -> bool:
 	"""Verifica si esta tecnología puede ser investigada"""
 	if completada or investigando:
 		return false
