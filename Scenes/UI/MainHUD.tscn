@@ -1,0 +1,250 @@
+[gd_scene load_steps=4 format=3 uid="uid://bf8jjcjx6a5xh"]
+
+[ext_resource type="Script" path="res://Scripts/UI/MainHUD.gd" id="1_main_hud"]
+[ext_resource type="PackedScene" uid="uid://de53dq1ddujpm" path="res://Scenes/Strategic/StrategicMap.tscn" id="2_strategic_map"]
+[ext_resource type="PackedScene" uid="uid://bjhqqwxvf8qwm" path="res://Scenes/UI/PauseMenu.tscn" id="3_pause_menu"]
+
+[node name="MainHUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_main_hud")
+
+[node name="StrategicMap" parent="." instance=ExtResource("2_strategic_map")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ResourceBar" type="Panel" parent="UI"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+grow_horizontal = 2
+
+[node name="Background" type="ColorRect" parent="UI/ResourceBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.2, 0.2, 0.3, 0.9)
+
+[node name="Content" type="HBoxContainer" parent="UI/ResourceBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="ResourcesContainer" type="HBoxContainer" parent="UI/ResourceBar/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DineroLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Dinero: 1000"
+
+[node name="VSeparator" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="ComidaLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Comida: 500"
+
+[node name="VSeparator2" type="VSeparator" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+
+[node name="MunicionLabel" type="Label" parent="UI/ResourceBar/Content/ResourcesContainer"]
+layout_mode = 2
+text = "Munición: 200"
+
+[node name="DateTurnContainer" type="VBoxContainer" parent="UI/ResourceBar/Content"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="DateLabel" type="Label" parent="UI/ResourceBar/Content/DateTurnContainer"]
+layout_mode = 2
+text = "Fecha: 1810 - Enero"
+horizontal_alignment = 2
+
+[node name="TurnLabel" type="Label" parent="UI/ResourceBar/Content/DateTurnContainer"]
+layout_mode = 2
+text = "Turno: 1"
+horizontal_alignment = 2
+
+[node name="CityUnitListPanel" type="Panel" parent="UI"]
+anchors_preset = 4
+anchor_top = 0.0
+anchor_bottom = 1.0
+offset_top = 80.0
+offset_right = 300.0
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="UI/CityUnitListPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.15, 0.15, 0.25, 0.95)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/CityUnitListPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="TitleLabel" type="Label" parent="UI/CityUnitListPanel/VBoxContainer"]
+layout_mode = 2
+text = "Ciudades y Unidades"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="UI/CityUnitListPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="UI/CityUnitListPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Ciudades" type="ScrollContainer" parent="UI/CityUnitListPanel/VBoxContainer/TabContainer"]
+layout_mode = 2
+
+[node name="CitiesList" type="VBoxContainer" parent="UI/CityUnitListPanel/VBoxContainer/TabContainer/Ciudades"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Unidades" type="ScrollContainer" parent="UI/CityUnitListPanel/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="UnitsList" type="VBoxContainer" parent="UI/CityUnitListPanel/VBoxContainer/TabContainer/Unidades"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailsPanel" type="Panel" parent="UI"]
+visible = false
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = 80.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="UI/DetailsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.15, 0.15, 0.25, 0.95)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/DetailsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="HeaderContainer" type="HBoxContainer" parent="UI/DetailsPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="UI/DetailsPanel/VBoxContainer/HeaderContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Detalles"
+
+[node name="CloseButton" type="Button" parent="UI/DetailsPanel/VBoxContainer/HeaderContainer"]
+layout_mode = 2
+text = "X"
+
+[node name="HSeparator" type="HSeparator" parent="UI/DetailsPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="ContentContainer" type="ScrollContainer" parent="UI/DetailsPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailsContent" type="VBoxContainer" parent="UI/DetailsPanel/VBoxContainer/ContentContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EventPanel" type="Panel" parent="UI"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -120.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Background" type="ColorRect" parent="UI/EventPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.2, 0.15, 0.15, 0.9)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/EventPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 5.0
+offset_right = -10.0
+offset_bottom = -5.0
+
+[node name="HeaderContainer" type="HBoxContainer" parent="UI/EventPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="EventsLabel" type="Label" parent="UI/EventPanel/VBoxContainer/HeaderContainer"]
+layout_mode = 2
+text = "Eventos y Notificaciones"
+
+[node name="HSeparator" type="HSeparator" parent="UI/EventPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="EventsContainer" type="HBoxContainer" parent="UI/EventPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EventsList" type="ScrollContainer" parent="UI/EventPanel/VBoxContainer/EventsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EventsLog" type="VBoxContainer" parent="UI/EventPanel/VBoxContainer/EventsContainer/EventsList"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QuickActionsContainer" type="VBoxContainer" parent="UI/EventPanel/VBoxContainer/EventsContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="QuickActionsLabel" type="Label" parent="UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer"]
+layout_mode = 2
+text = "Acciones Rápidas"
+horizontal_alignment = 1
+
+[node name="QuickActionButtons" type="VBoxContainer" parent="UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer"]
+layout_mode = 2
+
+[node name="NextTurnButton" type="Button" parent="UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons"]
+layout_mode = 2
+text = "Siguiente Turno"
+
+[node name="PauseButton" type="Button" parent="UI/EventPanel/VBoxContainer/EventsContainer/QuickActionsContainer/QuickActionButtons"]
+layout_mode = 2
+text = "Pausar"
+
+[node name="PauseMenu" parent="UI" instance=ExtResource("3_pause_menu")]
+visible = false
