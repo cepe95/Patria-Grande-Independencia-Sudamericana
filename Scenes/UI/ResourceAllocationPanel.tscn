@@ -1,0 +1,76 @@
+[gd_scene load_steps=2 format=3 uid="uid://cy8kqr4yjhvl"]
+
+[ext_resource type="Script" path="res://Scripts/UI/ResourceAllocationPanel.gd" id="1_0s8yv"]
+
+[node name="ResourceAllocationPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = 50.0
+offset_right = -100.0
+offset_bottom = -50.0
+script = ExtResource("1_0s8yv")
+
+[node name="Background" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="Header" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+text = "Asignación de Recursos"
+horizontal_alignment = 1
+
+[node name="DescriptionLabel" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+text = "Asigna recursos a diferentes categorías para mejorar tu facción"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="CategoryTabs" type="TabContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Footer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TotalCostContainer" type="HBoxContainer" parent="VBoxContainer/Footer"]
+layout_mode = 2
+
+[node name="TotalCostLabel" type="Label" parent="VBoxContainer/Footer/TotalCostContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Costo Total: Sin asignaciones"
+
+[node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer/Footer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="VBoxContainer/Footer/ButtonContainer"]
+layout_mode = 2
+text = "Cancelar"
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/Footer/ButtonContainer"]
+layout_mode = 2
+text = "Confirmar Asignación"

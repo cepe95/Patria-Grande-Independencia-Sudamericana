@@ -1,0 +1,156 @@
+{
+	"global_modifiers": {
+		"base_income_multiplier": 1.0,
+		"base_expense_multiplier": 1.0,
+		"trade_efficiency": 1.0
+	},
+	"resource_interactions": {
+		"dinero": {
+			"base_production": 50.0,
+			"base_consumption": 20.0,
+			"trade_conversion_rate": 1.0,
+			"maintenance_cost": 0.1
+		},
+		"oro": {
+			"base_production": 5.0,
+			"base_consumption": 0.0,
+			"trade_value_multiplier": 10.0
+		},
+		"plata": {
+			"base_production": 8.0,
+			"base_consumption": 0.0,
+			"trade_value_multiplier": 5.0
+		},
+		"pan": {
+			"base_production": 30.0,
+			"base_consumption": 25.0,
+			"population_consumption_rate": 1.0,
+			"morale_bonus": 5.0
+		},
+		"carne": {
+			"base_production": 20.0,
+			"base_consumption": 15.0,
+			"morale_bonus": 3.0
+		},
+		"fruta": {
+			"base_production": 25.0,
+			"base_consumption": 10.0,
+			"morale_bonus": 2.0
+		},
+		"verdura": {
+			"base_production": 35.0,
+			"base_consumption": 20.0,
+			"morale_bonus": 2.0
+		},
+		"vino": {
+			"base_production": 10.0,
+			"base_consumption": 5.0,
+			"morale_bonus": 4.0,
+			"trade_value_multiplier": 2.0
+		},
+		"aguardiente": {
+			"base_production": 8.0,
+			"base_consumption": 3.0,
+			"morale_bonus": 3.0
+		},
+		"tabaco": {
+			"base_production": 12.0,
+			"base_consumption": 8.0,
+			"trade_value_multiplier": 3.0
+		},
+		"municion": {
+			"base_production": 15.0,
+			"base_consumption": 25.0,
+			"military_consumption_rate": 2.0,
+			"combat_effectiveness": 1.2
+		},
+		"polvora": {
+			"base_production": 10.0,
+			"base_consumption": 15.0,
+			"military_requirement": true
+		},
+		"mosquetes": {
+			"base_production": 5.0,
+			"base_consumption": 2.0,
+			"unit_requirement": true
+		},
+		"sables": {
+			"base_production": 8.0,
+			"base_consumption": 3.0,
+			"unit_requirement": true
+		},
+		"lanzas": {
+			"base_production": 12.0,
+			"base_consumption": 5.0,
+			"unit_requirement": true
+		},
+		"cañones": {
+			"base_production": 2.0,
+			"base_consumption": 1.0,
+			"unit_requirement": true,
+			"combat_effectiveness": 1.5
+		},
+		"caballos": {
+			"base_production": 8.0,
+			"base_consumption": 10.0,
+			"unit_requirement": true,
+			"mobility_bonus": 2.0
+		},
+		"biblias": {
+			"base_production": 3.0,
+			"base_consumption": 1.0,
+			"research_bonus": 3.0,
+			"diplomacy_bonus": 2.0,
+			"cultural_influence": 5.0
+		}
+	},
+	"economic_events": {
+		"shortage_penalty": 0.8,
+		"surplus_bonus": 1.1,
+		"trade_disruption": 0.7,
+		"war_economic_impact": 0.9,
+		"peace_economic_bonus": 1.05
+	},
+	"allocation_categories": {
+		"construccion": {
+			"description": "Recursos destinados a construcción de edificios y infraestructura",
+			"efficiency_bonus": 1.0,
+			"required_resources": ["dinero", "oro", "plata"]
+		},
+		"unidades": {
+			"description": "Recursos destinados a entrenamiento y mantenimiento de unidades",
+			"efficiency_bonus": 1.0,
+			"required_resources": ["dinero", "municion", "polvora", "mosquetes", "sables", "lanzas", "cañones", "caballos"]
+		},
+		"tecnologia": {
+			"description": "Recursos destinados a investigación y desarrollo tecnológico",
+			"efficiency_bonus": 1.0,
+			"required_resources": ["dinero", "oro", "biblias"]
+		},
+		"diplomacia": {
+			"description": "Recursos destinados a relaciones diplomáticas y comercio",
+			"efficiency_bonus": 1.0,
+			"required_resources": ["dinero", "oro", "vino", "tabaco", "biblias"]
+		}
+	},
+	"storage_limits": {
+		"dinero": 10000,
+		"oro": 1000,
+		"plata": 2000,
+		"pan": 500,
+		"carne": 300,
+		"fruta": 400,
+		"verdura": 600,
+		"vino": 200,
+		"aguardiente": 150,
+		"tabaco": 250,
+		"municion": 1000,
+		"polvora": 500,
+		"mosquetes": 200,
+		"sables": 300,
+		"lanzas": 400,
+		"cañones": 50,
+		"caballos": 100,
+		"biblias": 100
+	}
+}

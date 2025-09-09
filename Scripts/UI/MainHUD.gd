@@ -10,6 +10,7 @@ extends Control
 @onready var details_panel: Panel = $UI/DetailsPanel
 @onready var event_panel: Panel = $UI/EventPanel
 @onready var pause_menu: Control = $UI/PauseMenu
+@onready var resource_allocation_panel: Control = $UI/ResourceAllocationPanel
 
 # Referencias a elementos específicos de los paneles
 @onready var dinero_label: Label = $UI/ResourceBar/Content/ResourcesContainer/DineroLabel
@@ -55,6 +56,12 @@ func setup_ui_connections():
 	next_turn_button.pressed.connect(_on_next_turn_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
 	
+	# Panel de asignación de recursos
+	if resource_allocation_panel:
+		resource_allocation_panel.allocation_confirmed.connect(_on_allocation_confirmed)
+		resource_allocation_panel.allocation_cancelled.connect(_on_allocation_cancelled)
+		resource_allocation_panel.visible = false
+	
 	# Input de teclado para pausar (ESC)
 	set_process_unhandled_input(true)
 
@@ -98,6 +105,14 @@ func _on_new_division_added(node: Node):
 # === MANEJO DE RECURSOS ===
 func initialize_resource_display():
 	"""Inicializa la visualización de recursos"""
+	# Conectar al EconomicManager si está disponible
+	if EconomicManager:
+		EconomicManager.resource_changed.connect(_on_resource_changed)
+		EconomicManager.economic_alert.connect(_on_economic_alert)
+		EconomicManager.turn_processed.connect(_on_turn_processed)
+		print("✓ MainHUD conectado al EconomicManager")
+	
+	# Inicializar recursos básicos si EconomicManager no está disponible
 	current_resources = {
 		"dinero": 1000,
 		"comida": 500,
@@ -107,9 +122,28 @@ func initialize_resource_display():
 
 func update_resource_display():
 	"""Actualiza la visualización de recursos en la barra superior"""
-	dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
-	comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
-	municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
+	if EconomicManager and FactionManager:
+		# Obtener facción del jugador (asumimos "Patriota" por defecto)
+		var player_faction = "Patriota"
+		
+		# Actualizar recursos principales usando EconomicManager
+		var dinero_amount = EconomicManager.get_resource_amount(player_faction, "dinero")
+		var dinero_net = EconomicManager.get_resource_net_income(player_faction, "dinero")
+		dinero_label.text = "Dinero: %d (%+.1f/turno)" % [dinero_amount, dinero_net]
+		
+		# Usar "pan" como indicador de comida general
+		var comida_amount = EconomicManager.get_resource_amount(player_faction, "pan")
+		var comida_net = EconomicManager.get_resource_net_income(player_faction, "pan")
+		comida_label.text = "Comida: %d (%+.1f/turno)" % [comida_amount, comida_net]
+		
+		var municion_amount = EconomicManager.get_resource_amount(player_faction, "municion")
+		var municion_net = EconomicManager.get_resource_net_income(player_faction, "municion")
+		municion_label.text = "Munición: %d (%+.1f/turno)" % [municion_amount, municion_net]
+	else:
+		# Fallback al sistema original
+		dinero_label.text = "Dinero: %d" % current_resources.get("dinero", 0)
+		comida_label.text = "Comida: %d" % current_resources.get("comida", 0)
+		municion_label.text = "Munición: %d" % current_resources.get("municion", 0)
 
 func update_date_turn_display(date_text: String = "", turn: int = -1):
 	"""Actualiza la visualización de fecha y turno"""
@@ -339,6 +373,7 @@ func add_initial_events():
 	add_event("El movimiento independentista se extiende por Sudamérica", "info")
 	add_event("Consulta el panel de ciudades y unidades para comenzar", "info")
 	add_event("Usa ESPACIO para avanzar turno, ESC para pausar", "info")
+	add_event("Usa E para ver economía detallada, R para asignar recursos", "info")
 
 # === SEÑALES Y CALLBACKS ===
 func _on_unit_selected(unit_node: Node):
@@ -399,9 +434,13 @@ func _on_next_turn_pressed():
 	"""Callback para avanzar al siguiente turno"""
 	current_turn += 1
 	update_date_turn_display("", current_turn)
-	add_event("Nuevo turno iniciado", "success")
 	
-	# TODO: Aquí se procesarían los eventos del turno
+	# Procesar turno económico si EconomicManager está disponible
+	if EconomicManager:
+		EconomicManager.process_turn()
+		update_resource_display()  # Actualizar recursos después del procesamiento
+	
+	add_event("Nuevo turno iniciado", "success")
 	print("✓ Avanzando al turno: ", current_turn)
 
 func _on_pause_pressed():
@@ -425,6 +464,10 @@ func _unhandled_input(event):
 					_on_pause_pressed()
 			KEY_SPACE:
 				_on_next_turn_pressed()
+			KEY_E:
+				show_detailed_economy()
+			KEY_R:
+				show_resource_allocation_panel()
 
 # === MÉTODOS PÚBLICOS PARA INTEGRACIÓN ===
 
@@ -451,6 +494,95 @@ func update_resources(new_resources: Dictionary):
 	add_event("Recursos actualizados", "info")
 
 # === MÉTODOS PLACEHOLDER PARA INTEGRACIÓN FUTURA ===
+
+func show_detailed_economy():
+	"""Muestra panel detallado de economía con todos los recursos"""
+	if not EconomicManager or not FactionManager:
+		add_event("Sistema económico no disponible", "error")
+		return
+	
+	var player_faction = "Patriota"
+	var economic_summary = EconomicManager.get_faction_economic_summary(player_faction)
+	
+	var details = {}
+	details["=== RECURSOS ECONÓMICOS ==="] = ""
+	
+	# Agrupar recursos por categoría
+	var categories = ["economia", "alimentacion", "militar", "cultural"]
+	
+	for category in categories:
+		details["--- " + category.capitalize() + " ---"] = ""
+		
+		for resource_id in EconomicManager.resource_definitions:
+			var res_def = EconomicManager.resource_definitions[resource_id]
+			if res_def.categoria == category:
+				var amount = economic_summary.recursos.get(resource_id, 0)
+				var income = economic_summary.ingresos.get(resource_id, 0.0)
+				var expenses = economic_summary.gastos.get(resource_id, 0.0)
+				var net = income - expenses
+				
+				details[res_def.get_display_name()] = "%d (Neto: %+.1f/turno)" % [amount, net]
+	
+	show_details("Economía Detallada", details)
+	add_event("Panel económico abierto", "info")
+
+func show_resource_allocation_panel():
+	"""Muestra panel para asignar recursos"""
+	if resource_allocation_panel and EconomicManager:
+		resource_allocation_panel.show_for_faction("Patriota")
+		add_event("Panel de asignación abierto", "info")
+	else:
+		add_event("Panel de asignación no disponible", "error")
+
+# === CALLBACKS DEL PANEL DE ASIGNACIÓN ===
+func _on_allocation_confirmed(category: String, resources: Dictionary):
+	"""Callback cuando se confirma una asignación de recursos"""
+	var resource_names = []
+	for resource_id in resources:
+		var res_def = EconomicManager.resource_definitions.get(resource_id)
+		var name = res_def.get_display_name() if res_def else resource_id
+		resource_names.append(name + ": " + str(resources[resource_id]))
+	
+	var message = "Recursos asignados a " + category + " - " + " | ".join(resource_names)
+	add_event(message, "success")
+	update_resource_display()
+
+func _on_allocation_cancelled():
+	"""Callback cuando se cancela la asignación de recursos"""
+	add_event("Asignación de recursos cancelada", "info")
+
+# === CALLBACKS DEL SISTEMA ECONÓMICO ===
+func _on_resource_changed(resource_id: String, old_amount: int, new_amount: int):
+	"""Callback cuando cambia un recurso"""
+	var change = new_amount - old_amount
+	var change_text = "aumentó" if change > 0 else "disminuyó"
+	add_event("Recurso " + resource_id + " " + change_text + " en " + str(abs(change)), "info")
+	
+	# Actualizar display si es uno de los recursos principales
+	if resource_id in ["dinero", "pan", "municion"]:
+		update_resource_display()
+
+func _on_economic_alert(alert_type: String, resource_id: String, message: String):
+	"""Callback para alertas económicas"""
+	var event_type = "warning"
+	match alert_type:
+		"shortage":
+			event_type = "error"
+		"surplus":
+			event_type = "success"
+		"drastic_change":
+			event_type = "warning"
+		"error":
+			event_type = "error"
+	
+	add_event("⚠ ALERTA ECONÓMICA: " + message, event_type)
+
+func _on_turn_processed(turn_number: int):
+	"""Callback cuando se procesa un turno económico"""
+	if turn_number != current_turn:
+		current_turn = turn_number
+		update_date_turn_display("", current_turn)
+	add_event("Economía procesada para turno " + str(turn_number), "success")
 
 func move_unit_to_position(unit: Node, target_position: Vector2):
 	"""PLACEHOLDER: Mover unidad a posición específica"""
