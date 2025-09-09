@@ -4,11 +4,33 @@ signal division_seleccionada(division)
 
 var data: DivisionData = null
 var detail: DivisionData = null
+var is_selected := false
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 @onready var label: Label = get_node_or_null("Label")
 @onready var icon: TextureRect = get_node_or_null("Icon")
 @onready var units_container: VBoxContainer = get_node_or_null("UnitsContainer") # Contenedor para unidades
+
+# Selection visual properties
+var original_modulate: Color
+
+func _ready():
+	original_modulate = modulate
+
+# Add selection support for SelectionManager
+func set_selected(selected: bool) -> void:
+	is_selected = selected
+	resaltar_seleccion(selected)
+
+# Method to check if unit belongs to player (for selection filtering)
+func is_player_unit() -> bool:
+	if data and data.faccion:
+		return data.faccion == "Patriota"
+	return true  # Default to selectable for now
+
+# Add movement method for SelectionManager
+func move_to(pos: Vector2) -> void:
+	mover_a(pos)
 
 func set_button_data(_data_param: DivisionData) -> void:
 	data = _data_param
